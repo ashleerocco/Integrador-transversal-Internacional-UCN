@@ -1,5 +1,6 @@
-﻿Sobre la organización  
-1. ¿Cuál es la función principal del área internacional dentro de la universidad? 
+﻿#Sobre la organización  
+
+**1. ¿Cuál es la función principal del área internacional dentro de la universidad?** 
 Entonces, la función-- bueno, eh, la función principal del área internacional dentro de la universidad es proveer experiencias internacionales para toda la comunidad, ya sean estudiantes, docentes, funcionarios y comunidad general. Ya. Nosotros hacemos más, más que solo movilidad estudiantil, ¿cierto?
 
 
@@ -12,7 +13,7 @@ Todos conocen lo que es para irse de intercambio o más o menos, pero sí conoce
 Entonces, eh- Esos son los cursos, ¿cierto? De idiomas. Los cursos de idiomas. Y también hay formaciones generales electivas que los alumnos no tienen que pagar. Y esas formaciones generales electivas tampoco son conocidas por los estudiantes. Entonces, tenemos baja de eso también. Ustedes son de control de gestión, ¿cierto?
 
 
-2. ¿Cómo está organizado actualmente el equipo y cómo se distribuyen las funciones? 
+**2. ¿Cómo está organizado actualmente el equipo y cómo se distribuyen las funciones?**
 
 
  Ya, el equipo somos cinco, cinco personas, sí. Está la directora de Relaciones Internacionales, que está en Santiago, siempre en Santiago, basada allá.
@@ -27,11 +28,11 @@ Y en Antofagasta estoy yo, que veo idiomas, internacionalización, que tiene que
 Así están distribuidas las funciones dentro de nuestra- Ah, ya ...de internacional. No les puedo compa-- no les puedo compartir por el chat, no me deja compartir el-- que tenemos una página web que ahí sale lo-- para que la revisen después. Bueno. Se llama inter- internacional.ucn.cl, internacional.ucn.cl, que no me deja compartir el- Ya.
 
 
-Usuarios 
+#Usuarios 
 
 
-3. ¿Quiénes son sus principales usuarios y qué tipo de solicitudes presentan mayor 
-frecuencia? 
+**3. ¿Quiénes son sus principales usuarios y qué tipo de solicitudes presentan mayor** 
+**frecuencia?**
 Ya. Los usuarios del área que vamos a trabajar, ¿cierto? De idiomas. Sí. Ya. Los usuarios principales son, eh, externos y eso es lo que queremos, eso es lo que queremos como- Cambiar, como ...cambiar, que haya más participantes, estudiantes y, y de pre y posgrado y, y profesores, que sea más visible los idiomas.
 
 
@@ -43,8 +44,9 @@ Ya. Y, y en el caso que de mí como-- ah, no, me quedé, todavía. Eh, y en el c
 
 
 
-4. ¿Cuáles son las principales dificultades que enfrentan los estudiantes durante el 
-proceso de intercambio? 
+**4. ¿Cuáles son las principales dificultades que enfrentan los estudiantes durante el** 
+**proceso de intercambio?**
+
 Ya, en, en esta parte del proceso de intercambio, eh, las principales dificultades por lo general son de, de los trámites de visado y, eh, que ellos, ellos reportan y las, eh, bases de datos de las asignaturas de la otra universidad a la que ellos van a postular.
 
 
@@ -56,11 +58,11 @@ Sí, eso lo había escuchado, pero eso es porque generalmente las mallas que tie
 
 
 
-Procesos 
+#Procesos 
 
 
-5. ¿Podrían explicarnos cómo es el proceso desde que un estudiante manifiesta interés 
-en realizar un intercambio hasta que finalmente lo concreta? 
+**5.¿Podrían explicarnos cómo es el proceso desde que un estudiante manifiesta interés** 
+**en realizar un intercambio hasta que finalmente lo concreta?** 
 Eh, cuando manifiestan el interés, por lo general escriben un correo. Tenemos un correo, eh, genérico que se llama idiomas.pie@cn.cl. Y ahí, eh, para optimizar la respuesta, yo tengo plantillas. Entonces, contesto con la plantilla y ahí las personas pueden-- se redirige a la página web donde está la información de qué curso quieren.
 
 
@@ -70,7 +72,7 @@ En la misma plantilla está el horario. Eh, pero aún así es lento el proceso p
 Entonces, por ejemplo, no sé, una persona manifiesta interés en diciembre y ya después en marzo quizá ya tomó otro curso. Entonces, porque ya no, no te-- no ofrecemos cursos personalizados, entonces no le sirve a esa persona. Y ese flujo también queremos mejorar, pues no sé cómo. Ya. O sea, no podemos ofrecer cursos personalizados por temas de-- económico, pero por último, para tener esa inform-- ese proceso como más, eh, afianzado, no sé cómo llamarle
 
 
-6. ¿En qué etapa de este proceso suelen presentar mayor dificultad? 
+**6. ¿En qué etapa de este proceso suelen presentar mayor dificultad?** 
 
 
 Una vez que se inscriben las personas, como es co-por convocatoria, eh, una vez que se inscriben, ponte tú, ya nosotros lanzamos la convocatoria en marzo, ¿ya? Y la persona se inscribió el 1 de marzo y el curso recién se, se va-- se sabe si se va a dictar o no cuando cierra la convocatoria y la convocatoria cierra el 12 de abril, ponte tú.
@@ -82,8 +84,9 @@ Mmm. Y la persona tiene que esperar todo ese mes a ver si se abre el curso o no.
 Mmm. Y luego, la otra dificultad también es cuando termina el curso y entre que termina el curso se piden los certificados al secretario general. Y ahí entre que termina el curso y en la firma del secretario general también es como un mes. Entonces, en este mes igual es como que también se pierde un poco la comunicación y eso también es una dificultad.
 
 
-Canales
-7. ¿Qué canales ocupan para la comunicación con los estudiantes, son eficientes? 
+#Canales
+
+**7. ¿Qué canales ocupan para la comunicación con los estudiantes, son eficientes?**
 Información 
 Nos comunicamos con los estudiantes mediante correo electrónico e Instagram. Ya. Eh, si bien hacemos dos llamadas al año y mandamos correos masivos a los estudiantes, a la comunidad general, eh, aun así no es tan conocido el tema de los idiomas.
 
@@ -97,12 +100,12 @@ Claro. Y esa es nuestro-- nuestra mayor como, eh, debilidad o que no-- efectivam
 Esa es la idea fuerza de nuestra unidad. No lo dije al principio, pero eso es. Por eso están los idiomas. Una- Entonces. Sí, para cortar la brecha idiomática de los estudiantes, de la comunidad en general y, eh, generar recursos para la movilidad estudiantil. Esa es nuestra visión como IDIOMAS.
 
 
-8. ¿Qué herramientas o sistemas utilizan para registrar y gestionar la información de 
-los estudiantes y procesos? 
+**8. ¿Qué herramientas o sistemas utilizan para registrar y gestionar la información de** 
+**los estudiantes y procesos?** 
 Eh, bueno, para registrar y gestionar la información usamos un Google Form y ahora un JotForm, que vendría siendo lo mismo, pero de Jot. Y esa, eh, ahí registramos la información de los alumnos, que después genera un Excel y en ese Excel, eh, registran los profesores la asistencia y las notas. Y como sistema de aprendizaje usamos una plataforma que se llama Cambridge One y para los-- ese es inglés y para los otros idiomas usamos el campus virtual
 
 
-9. ¿ La información queda registrada en el mismo lugar? 
+**9. ¿ La información queda registrada en el mismo lugar?** 
 Eh, tenemos-- por eso tenemos el form que después se transforma en un Excel y después ese Excel es la asistencia de los alumnos. Y ese Excel es donde está toda la información. O sea, se pierde ese Excel, se pierde toda la información.
 
 
@@ -114,8 +117,8 @@ Claro, ahí está todo disperso, hay que tener mucho cuidado. Sí, y esa es una 
 
 
 
-10. ¿Hay alguna problemática o situación que ustedes consideren importante y que les 
-gustaría que analizaremos durante nuestro proyecto?
+**10. ¿Hay alguna problemática o situación que ustedes consideren importante y que les** 
+**gustaría que analizaremos durante nuestro proyecto?**
 
 
 Bueno, que está-- bueno, la problemática es la que les mencioné, que está todo disperso y que a mí me gustaría tener una sola plataforma donde se pudiera visualizar claramente y ojalá visualmente. Eh, por ejemplo, cuánta cantidad de estudiantes UCN, cuántos egresados, cuántos, eh, externos. Eh, que en esa misma página yo pueda ver el avance del estudiante, o sea, la asistencia, que el Excel que te-- ya tenemos, eh, sea como más, eh, visual.
