@@ -1,0 +1,9 @@
+**Socio comunitario:** Sección de Idiomas, Dirección de Relaciones Internacionales UCN (Antofagasta)  
+**Equipo:** Valentina Restrepo, Constanza Cid, Ashlee Mansilla.
+
+| N° | Fecha | Modalidad y participantes | Temas abordados | Acuerdos y tareas |
+| ----- | ----- | ----- | ----- | ----- |
+| 1 | 11/09/2026 | Meet.  Constanza Cid, Ashlee Mansilla, Valentina Restrepo y Coordinadora de idiomas.  | Primera entrevista con 10 preguntas sobre función del área, equipo (5 personas), usuarios (principalmente externos), procesos, canales (correo e Instagram), herramientas (Google Form/JotForm → Excel, Cambridge One, campus virtual). **Problemática planteada:** la información está dispersa en Excel separados (asistencia, notas, pagos) y no hay una plataforma única. Si se pierde un Excel, se pierde la información. | El equipo analizará la información y solicitará los Excel y materiales que usan. Se quiere una plataforma que muestre tipo de estudiante (UCN, egresados, externos), asistencia, notas y pagos, y que apoye la emisión de certificados. |
+| 2 | 28/09/2026 | Correo.  Valentina Restrepo solicitó información a la coordinadora de idiomas | Solicitud de información sobre los Excel que maneja el área. | La contraparte debía enviar los archivos y accesos. |
+| 3 | 28/09/2026 | Correo. Coordinadora  | El correo reitera que el proyecto debe enfocarse específicamente en la **Sección de Idiomas**: sus procesos, necesidades de gestión y objetivos. Pide que el equipo revise antes la información del sitio de la sección.  | El equipo revisará el material, levantará las variables y datos y preparará la siguiente reunión. |
+
