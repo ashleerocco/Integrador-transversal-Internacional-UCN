@@ -82,7 +82,7 @@ with tab_lista:
         )
 
         st.subheader("Estudiantes por tipo")
-        st.bar_chart(df["tipo"].value_counts())
+           st.bar_chart(df["tipo"].value_counts(), horizontal=True)
 
 # ---------------- Registrar ----------------
 with tab_nuevo:
