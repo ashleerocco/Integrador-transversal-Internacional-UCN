@@ -1,0 +1,20 @@
+ Sí, sí, te escucho perfecto, super, ya, super, me parece excelente.   
+Sí, justamente eso es lo que estamos buscando, una plataforma centralizada donde podamos tener la información que tú señalas, separada por usuario, donde se pudieran ver los pagos, las notas, lo que sí, primero me había quedado claro eso de los roles, pero ahora ya caché que era una plataforma, por eso, sí, ya, super, sí, sí, estoy de acuerdo con, sí, sí, no, sí, me parece  super bien el calcular la asistencia, sí, eso, eso mismo necesitábamos, sí, sí, sí, super, lo que la nota y él, y cómo se llama y el pago, sí, sí, sí, la asistencia se va, 
+
+la información que se pone una sola vez es toda la información personal del estudiante, o sea, el nombre, el  rut, qué tipo de vínculo tiene con la universidad, el género, su, su, cómo se llama, su, su documentación, el teléfono, el correo, esa información se genera una sola vez, y ya después 
+
+la información que se actualiza son la asistencia y las notas, y eso lo registra el profesor, o la profesora, sí, eso es lo principal porque 
+
+la información de pago la registramos, la registro yo, la coordinadora, la asistencia y las notas, y los pagos, pero, sí, la información que se debería ver para la coordinación, todo al final, porque nosotros igual trabajamos con esos datos en diferentes bases de datos, por ejemplo, quiénes son los que más participan de los cursos, hombres o mujeres, por ejemplo, quiénes, qué cursos son los que más se abren, los de inglés, los de francés, entonces esa información va a depender de lo que va, y vayamos necesitando, entonces yo necesito esa información seccionada, si son eresados, si son estudiantes, de qué carrera, de qué nacionalidad, esa información igual es relevante para nosotros, la edad, por ejemplo, también, y para mí como coordinadora, y 
+
+para el usuario profesor, debería ser la asistencia y las notas, porque para eso nomás ellos usarían esta plataforma, y para el estudiante poder descargar el certificado, y también para el estudiante quizás poder ver sus notas, coordinación, solo coordinación, porque los profesores solamente ven las notas y la asistencia, se necesita el nombre completo, el root, nacionalidad, fecha de nacimiento, notas, y nada, sí, sí, sí, sí, tengo una duda respecto al certificado, ustedes lo que quieren hacer es como que se emita un certificado como automático, o cómo lo ven eso, ya, porque en ese aspecto, claro, hay unos procedimientos de la Secretaría General, entonces, o sea, si ustedes pudieran, no sé si ustedes, pero la prof, no sé, si se pudiera hacer como automatizado, estaría estupendo, pero yo sé que así no va a ser,  no va a ser así porque hay un procedimiento súper largo, entonces
+
+quizás dejar como el espacio para que yo como coordinadora pueda subir el certificado y el estudiante lo pueda descargar, si es que esa es la visión que ustedes tenían respecto, porque tampoco sé que, como que eso a mí se me ocurre como para el certificado, porque como te digo, yo creo que eso va a tomar un rato más, porque nosotros pagamos unos impuestos y estampilla, entonces el certificado tiene como una validez. 
+
+ Sí, a mí me interesa más que quede como, que la información que tenemos hasta ahora quede como en un solo lugar.  
+Súper. Tenemos una como marca, tenemos una marca de la dirección, te mando el alineamiento. Sí.Valentina, Restrepo, Constanza, a las tres, ¿cierto? Constanza, Sid, y ahora Ashley. Ya. Sí, Súper.  
+Igual, de todas maneras, yo uso el chat de Google, que el correo tiene un chat. No sé si saben. Ese chat, si no lo tienen en el celular, te llega al celular.  
+Entonces, si es que quieren algo así como muy urgente, me escriben por ahí y yo les voy a contestar más rápido. Que es que fuera así. Bueno, Constanza, muchas gracias por tu tiempo.  
+Muchas gracias por venir hoy día. Ajustarse a mi horario, lo siento tanto que esta semana ha sido de locos. Así que muchas gracias.  
+Sí, muchas gracias. Gracias, Constanza, que estés bien. No, no, tranquila.  
+Súper, que estés bien.  Chao. 
