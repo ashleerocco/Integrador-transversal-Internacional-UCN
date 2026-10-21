@@ -33,6 +33,7 @@ PAGINAS = {
         st.Page("vistas/coord_certificados.py", title="Certificados", icon="🎓"),
         st.Page("vistas/docente_asistencia.py", title="Asistencia", icon="✅"),
         st.Page("vistas/docente_notas.py", title="Notas", icon="📝"),
+        st.Page("vistas/coord_estudiantes.py", title="Estudiantes", icon="👥"),
     ],
     "docente": [
         st.Page("vistas/docente_asistencia.py", title="Asistencia", icon="✅", default=True),
