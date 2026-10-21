@@ -1,10 +1,11 @@
 import streamlit as st
 import pandas as pd
 from utils.supabase_client import get_client
+from utils.estilos import encabezado
 from utils.datos import nombre_completo
 
 sb = get_client()
-st.title("Estudiantes")  # RF-01
+encabezado("Estudiantes")  # RF-01
 
 
 def normalizar_rut(rut: str) -> str:

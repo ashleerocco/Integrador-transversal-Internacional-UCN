@@ -1,11 +1,12 @@
 import streamlit as st
 import pandas as pd
 from utils.supabase_client import get_client
+from utils.estilos import encabezado
 from utils.datos import nombre_completo
 
 sb = get_client()
 perfil = st.session_state.perfil
-st.title("Notas")  # RF-05
+encabezado("Notas")  # RF-05
 
 q = sb.table("oferta_curso").select("id, periodo, estado, curso(nombre)")
 if perfil["rol"] == "docente":

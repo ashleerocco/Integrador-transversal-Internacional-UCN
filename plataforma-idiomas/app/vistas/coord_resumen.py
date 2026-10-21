@@ -1,9 +1,10 @@
 import streamlit as st
 import pandas as pd
 from utils.supabase_client import get_client
+from utils.estilos import encabezado
 
 sb = get_client()
-st.title("Resumen general")
+encabezado("Resumen general")
 
 
 def clp(n):
@@ -24,7 +25,7 @@ c3.metric("Pendiente de pago", clp(pendiente))
 st.subheader("Estudiantes por tipo")
 if est:
     df = pd.DataFrame([e["tipo_estudiante"]["nombre"] for e in est], columns=["Tipo"])
-    st.bar_chart(df["Tipo"].value_counts())
+    st.bar_chart(df["Tipo"].value_counts(), color="#6D5CE8")
 else:
     st.info("Aún no hay estudiantes registrados.")
 

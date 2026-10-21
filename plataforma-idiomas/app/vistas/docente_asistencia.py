@@ -1,11 +1,12 @@
 import streamlit as st
 import pandas as pd
 from utils.supabase_client import get_client
+from utils.estilos import encabezado
 from utils.datos import nombre_completo
 
 sb = get_client()
 perfil = st.session_state.perfil
-st.title("Asistencia")  # RF-04
+encabezado("Asistencia")  # RF-04
 
 # Cursos a mostrar: la coordinadora ve todos; el docente solo los suyos
 q = sb.table("oferta_curso").select("id, periodo, estado, curso(nombre)")

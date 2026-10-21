@@ -2,10 +2,11 @@ import streamlit as st
 import pandas as pd
 from datetime import date
 from utils.supabase_client import get_client
+from utils.estilos import encabezado
 from utils.datos import inscripciones_etiquetadas, nombre_completo, etiqueta_curso
 
 sb = get_client()
-st.title("Certificados")  # RF-09
+encabezado("Certificados")  # RF-09
 st.caption("Flujo: cumple requisitos → solicitado → (llega firmado) → subir PDF → el estudiante lo descarga.")
 
 opciones = inscripciones_etiquetadas(sb)

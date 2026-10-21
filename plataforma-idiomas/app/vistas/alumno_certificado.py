@@ -1,8 +1,9 @@
 import streamlit as st
 from utils.supabase_client import get_client
+from utils.estilos import encabezado
 
 sb = get_client()
-st.title("Mi certificado")
+encabezado("Mi certificado")
 
 # RLS solo deja pasar certificados propios con estado 'entregado' y archivo cargado
 certs = sb.table("certificado").select(

@@ -1,9 +1,10 @@
 import streamlit as st
 import pandas as pd
 from utils.supabase_client import get_client
+from utils.estilos import encabezado
 
 sb = get_client()
-st.title("Mis notas")
+encabezado("Mis notas")
 
 # RLS garantiza que solo llegan las inscripciones y notas de este estudiante
 insc = sb.table("inscripcion").select(
