@@ -42,6 +42,7 @@ PAGINAS = {
     "coordinadora": [
         st.Page("vistas/coord_resumen.py", title="Resumen", icon=":material/dashboard:", default=True),
         st.Page("vistas/coord_estudiantes.py", title="Estudiantes", icon=":material/groups:"),
+        st.Page("vistas/coord_cursos.py", title="Cursos", icon=":material/menu_book:"),
         st.Page("vistas/coord_pagos.py", title="Pagos", icon=":material/payments:"),
         st.Page("vistas/coord_certificados.py", title="Certificados", icon=":material/workspace_premium:"),
         st.Page("vistas/docente_asistencia.py", title="Asistencia", icon=":material/fact_check:"),
