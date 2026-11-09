@@ -1,5 +1,6 @@
 import streamlit as st
 from utils.supabase_client import login, logout
+from utils.inscripcion import formulario_inscripcion
 from utils.estilos import (
     aplicar_estilos, encabezado, panel_login, LOGO, FAVICON,
 )
@@ -12,28 +13,33 @@ st.set_page_config(
 aplicar_estilos()
 
 
-def pantalla_login():
-    izq, der = st.columns([1.05, 1], gap="large")
+def pantalla_inicio():
+    """Pantalla pública: primero la inscripción (sin cuenta), luego el acceso."""
+    izq, der = st.columns([0.8, 1.7], gap="large")
     with izq:
         panel_login()
     with der:
-        st.markdown("<div style='height:3.5rem'></div>", unsafe_allow_html=True)
-        encabezado("Iniciar sesión", "Ingresa con tu correo y contraseña")
-        with st.form("login"):
-            email = st.text_input("Correo")
-            password = st.text_input("Contraseña", type="password")
-            enviar = st.form_submit_button("Ingresar", type="primary")
-        if enviar:
-            ok, msg = login(email.strip(), password)
-            if ok:
-                st.rerun()
-            else:
-                st.error(msg)
+        tab_insc, tab_login = st.tabs(["📝 Inscripción a cursos", "🔐 Iniciar sesión"])
+        with tab_insc:
+            formulario_inscripcion()
+        with tab_login:
+            st.markdown("<div style='height:1rem'></div>", unsafe_allow_html=True)
+            encabezado("Iniciar sesión", "Para coordinación, docentes y estudiantes")
+            with st.form("login"):
+                email = st.text_input("Correo")
+                password = st.text_input("Contraseña", type="password")
+                enviar = st.form_submit_button("Ingresar", type="primary")
+            if enviar:
+                ok, msg = login(email.strip(), password)
+                if ok:
+                    st.rerun()
+                else:
+                    st.error(msg)
 
 
 perfil = st.session_state.get("perfil")
 if not perfil:
-    pantalla_login()
+    pantalla_inicio()
     st.stop()
 
 # Menú según el rol (RF-06). La seguridad real la aplica Supabase con RLS;
@@ -41,6 +47,7 @@ if not perfil:
 PAGINAS = {
     "coordinadora": [
         st.Page("vistas/coord_resumen.py", title="Resumen", icon=":material/dashboard:", default=True),
+        st.Page("vistas/coord_solicitudes.py", title="Solicitudes", icon=":material/inbox:"),
         st.Page("vistas/coord_estudiantes.py", title="Estudiantes", icon=":material/groups:"),
         st.Page("vistas/coord_cursos.py", title="Cursos", icon=":material/menu_book:"),
         st.Page("vistas/coord_pagos.py", title="Pagos", icon=":material/payments:"),
