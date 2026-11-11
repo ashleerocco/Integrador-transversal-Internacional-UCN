@@ -4,11 +4,12 @@ from datetime import date, datetime
 from io import BytesIO
 
 import pandas as pd
-from openpyxl.styles import Font
-from openpyxl.utils import get_column_letter
 
 
 def dataframe_a_excel(df: pd.DataFrame, nombre_archivo: str, nombre_hoja: str) -> BytesIO:
+    from openpyxl.styles import Font
+    from openpyxl.utils import get_column_letter
+
     """Genera un libro .xlsx en memoria con formato básico para la tabla recibida."""
     salida = BytesIO()
     with pd.ExcelWriter(salida, engine="openpyxl") as writer:
