@@ -207,7 +207,7 @@ def render_formulario_estudiante(sb, modo="registro"):
 
     if modo == "registro":
         try:
-            existentes = sb.table("estudiante").select("id, nombres, apellido_paterno, apellido_materno").eq("documento", rut_limpio).limit(1).execute().data
+            existentes = sb.table("estudiante").select("id").eq("documento", rut_limpio).limit(1).execute().data
         except Exception:
             st.error("No se pudo verificar si el RUT ya está registrado. Inténtalo nuevamente.")
             return None
