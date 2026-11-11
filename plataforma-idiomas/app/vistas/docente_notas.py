@@ -3,6 +3,7 @@ import pandas as pd
 from utils.supabase_client import get_client
 from utils.estilos import encabezado
 from utils.datos import nombre_completo
+from utils.exportar import boton_descarga
 
 sb = get_client()
 perfil = st.session_state.perfil
@@ -49,6 +50,7 @@ editado = st.data_editor(
     disabled=["inscripcion_id", "Estudiante"], column_config=cfg,
     key=f"notas_{oferta_id}",
 )
+boton_descarga(editado.drop(columns=["inscripcion_id"]), "notas_curso", "Notas", key=f"export_notas_{oferta_id}")
 
 if st.button("Guardar notas", type="primary"):
     filas = []

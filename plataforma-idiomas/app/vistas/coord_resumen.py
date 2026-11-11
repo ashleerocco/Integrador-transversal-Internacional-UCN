@@ -2,6 +2,7 @@ import streamlit as st
 import pandas as pd
 from utils.supabase_client import get_client
 from utils.estilos import encabezado
+from utils.exportar import boton_descarga
 
 sb = get_client()
 encabezado("Resumen general")
@@ -25,6 +26,8 @@ c3.metric("Pendiente de pago", clp(pendiente))
 st.subheader("Estudiantes por tipo")
 if est:
     df = pd.DataFrame([e["tipo_estudiante"]["nombre"] for e in est], columns=["Tipo"])
+    resumen_tipos = df["Tipo"].value_counts().rename_axis("Tipo").reset_index(name="Cantidad")
+    boton_descarga(resumen_tipos, "estudiantes_por_tipo", "Por tipo", key="export_resumen_tipos")
     st.bar_chart(df["Tipo"].value_counts(), color="#6D5CE8")
 else:
     st.info("Aún no hay estudiantes registrados.")
@@ -37,6 +40,7 @@ if v:
         "curso": "Curso", "periodo": "Período", "cupo_minimo": "Mínimo",
         "inscritos": "Inscritos", "alcanza_minimo": "Alcanza mínimo",
     }).drop(columns=["oferta_id"])
+    boton_descarga(df, "resumen_cursos", "Cursos", key="export_resumen_cursos")
     st.dataframe(df, hide_index=True, use_container_width=True)
 else:
     st.info("No hay ofertas de cursos registradas.")

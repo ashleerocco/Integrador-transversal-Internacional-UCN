@@ -3,6 +3,7 @@ import pandas as pd
 from utils.supabase_client import get_client
 from utils.estilos import encabezado
 from utils.datos import nombre_completo
+from utils.exportar import boton_descarga
 
 sb = get_client()
 perfil = st.session_state.perfil
@@ -71,6 +72,7 @@ editado = st.data_editor(
     },
     key=f"asis_{sesion_id}",
 )
+boton_descarga(editado[["Estudiante", "Estado"]], "asistencia", "Asistencia", key=f"export_asistencia_{sesion_id}")
 
 if st.button("Guardar asistencia", type="primary"):
     filas = [{"sesion_id": sesion_id, "inscripcion_id": int(r.inscripcion_id), "estado": r.Estado}
@@ -86,9 +88,11 @@ with st.expander("📈 Porcentaje de asistencia del curso"):
     pct = sb.table("v_asistencia_inscripcion").select("*").in_("inscripcion_id", ids).execute().data
     nombres = {i["id"]: nombre_completo(i["estudiante"]) for i in insc}
     if pct:
-        st.dataframe(pd.DataFrame([{
+        df_pct = pd.DataFrame([{
             "Estudiante": nombres[p["inscripcion_id"]],
             "Sesiones registradas": p["sesiones_registradas"],
             "Presentes": p["presentes"],
             "% asistencia": p["porcentaje_asistencia"],
-        } for p in pct]), hide_index=True, use_container_width=True)
+        } for p in pct])
+        boton_descarga(df_pct, "porcentaje_asistencia", "Asistencia", key=f"export_pct_{sesion_id}")
+        st.dataframe(df_pct, hide_index=True, use_container_width=True)

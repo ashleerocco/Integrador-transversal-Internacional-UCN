@@ -3,6 +3,7 @@ import pandas as pd
 from utils.supabase_client import get_client
 from utils.estilos import encabezado
 from utils.datos import nombre_completo
+from utils.exportar import boton_descarga
 
 sb = get_client()
 encabezado("Estudiantes")  # RF-01
@@ -142,4 +143,5 @@ if filtro:
     df = df[df["Vínculo UCN"].isin(filtro)]
 
 st.caption(f"{len(df)} estudiante(s)")
+boton_descarga(df, "estudiantes", "Estudiantes", key="export_estudiantes")
 st.dataframe(df, hide_index=True, use_container_width=True)

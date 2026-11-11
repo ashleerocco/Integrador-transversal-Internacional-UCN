@@ -1,6 +1,8 @@
 import streamlit as st
+import pandas as pd
 from utils.supabase_client import get_client
 from utils.estilos import encabezado
+from utils.exportar import boton_descarga
 
 sb = get_client()
 encabezado("Mi certificado")
@@ -13,6 +15,14 @@ certs = sb.table("certificado").select(
 if not certs:
     st.info("Aún no tienes certificados disponibles. Cuando la coordinación lo cargue, aparecerá aquí.")
     st.stop()
+
+df = pd.DataFrame([{
+    "Curso": c["inscripcion"]["oferta_curso"]["curso"]["nombre"],
+    "Período": c["inscripcion"]["oferta_curso"]["periodo"],
+    "Entregado": c["fecha_entrega"],
+} for c in certs])
+boton_descarga(df, "mis_certificados", "Mis certificados", key="export_mis_certificados")
+st.dataframe(df, hide_index=True, use_container_width=True)
 
 for c in certs:
     oferta = c["inscripcion"]["oferta_curso"]

@@ -4,6 +4,7 @@ from datetime import date
 from utils.supabase_client import get_client
 from utils.estilos import encabezado
 from utils.datos import inscripciones_etiquetadas, nombre_completo, etiqueta_curso
+from utils.exportar import boton_descarga
 
 sb = get_client()
 encabezado("Pagos")  # RF-07
@@ -52,6 +53,7 @@ if filas:
     filtro = st.multiselect("Filtrar por estado", ["pendiente", "pagado", "devuelto"])
     if filtro:
         df = df[df["Estado"].isin(filtro)]
+    boton_descarga(df, "pagos", "Pagos", key="export_pagos")
     st.dataframe(df, hide_index=True, use_container_width=True)
 
     st.subheader("Cambiar estado de un pago")

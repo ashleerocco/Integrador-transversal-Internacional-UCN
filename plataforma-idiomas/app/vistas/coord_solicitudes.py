@@ -1,10 +1,12 @@
 from datetime import date
 
 import streamlit as st
+import pandas as pd
 
 from utils.datos import nombre_completo
 from utils.estilos import encabezado
 from utils.supabase_client import get_client
+from utils.exportar import boton_descarga
 
 sb = get_client()
 perfil = st.session_state["perfil"]
@@ -59,6 +61,16 @@ sols = sb.table("solicitud_inscripcion").select(
 ).eq("estado", estado).order("id", desc=True).execute().data
 
 st.caption(f"{len(sols)} solicitud(es) {estado}(s)")
+if sols:
+    df = pd.DataFrame([{
+        "Estudiante": nombre_completo(s), "Curso": s["oferta_curso"]["curso"]["nombre"],
+        "Período": s["oferta_curso"]["periodo"], "Documento": s["documento"],
+        "Correo": s["correo"], "Teléfono": s["telefono"],
+        "Vínculo UCN": s["tipo_estudiante"]["nombre"],
+        "Carrera / Unidad": s["unidad_ucn"], "Campus": s["campus"],
+        "Recibida": s["creado_en"], "Observación": s.get("observacion"),
+    } for s in sols])
+    boton_descarga(df, f"solicitudes_{estado}", "Solicitudes", key=f"export_solicitudes_{estado}")
 if not sols:
     st.info("No hay solicitudes en este estado.")
 

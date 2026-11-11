@@ -4,6 +4,7 @@ from datetime import date
 from utils.supabase_client import get_client
 from utils.estilos import encabezado
 from utils.datos import inscripciones_etiquetadas, nombre_completo, etiqueta_curso
+from utils.exportar import boton_descarga
 
 sb = get_client()
 encabezado("Certificados")  # RF-09
@@ -75,6 +76,7 @@ if certs:
     filtro = st.multiselect("Filtrar por estado", ["pendiente", "solicitado", "firmado", "entregado"])
     if filtro:
         df = df[df["Estado"].isin(filtro)]
+    boton_descarga(df, "certificados", "Certificados", key="export_certificados")
     st.dataframe(df, hide_index=True, use_container_width=True)
 else:
     st.info("Aún no hay certificados registrados.")
