@@ -22,7 +22,10 @@ def aprobar(s: dict):
     else:
         campos = ["nombres", "apellido_paterno", "apellido_materno", "sexo",
                   "tipo_documento", "documento", "correo", "telefono",
-                  "tipo_estudiante_id", "unidad_ucn", "campus"]
+                  "tipo_estudiante_id", "unidad_ucn", "carrera", "ocupacion",
+                  "genero", "nombre_social", "pronombres", "campus", "nacionalidad",
+                  "condicion_salud", "cedula_path", "licencia_media_path",
+                  "consentimiento_datos", "fecha_consentimiento"]
         datos = {k: s[k] for k in campos if s.get(k) not in (None, "")}
         est_id = sb.table("estudiante").insert(datos).execute().data[0]["id"]
 
@@ -101,7 +104,7 @@ for s in sols:
                     if "duplicate" in msg or "23505" in msg:
                         st.error("Ya existe un estudiante con ese correo o documento. Revísalo en Estudiantes.")
                     else:
-                        st.error(f"No se pudo aprobar: {msg}")
+                        st.error("No se pudo aprobar la solicitud. Inténtalo nuevamente.")
             if b2.button("Rechazar", key=f"r{s['id']}"):
                 rechazar(s, motivo)
                 st.rerun()
