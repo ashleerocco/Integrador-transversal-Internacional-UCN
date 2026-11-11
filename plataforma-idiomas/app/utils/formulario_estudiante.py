@@ -79,7 +79,10 @@ def render_formulario_estudiante(sb, modo="registro"):
 
     # El vínculo queda fuera del formulario para refrescar los campos condicionales al instante.
     st.markdown("**Datos académicos / institucionales**")
-    vinculo = st.selectbox("Vínculo UCN *", VINCULOS, key=f"{modo}_vinculo_ucn")
+    vinculo = st.selectbox(
+        "Vínculo UCN *", ["Selecciona un vínculo", *VINCULOS],
+        key=f"{modo}_vinculo_ucn",
+    )
 
     with st.form(f"formulario_estudiante_{modo}", clear_on_submit=True):
         st.markdown("**Identificación**")
@@ -109,9 +112,13 @@ def render_formulario_estudiante(sb, modo="registro"):
             carrera = st.text_input("Carrera *")
             ocupacion = ""
             campus = st.selectbox("Campus UCN *", CAMPUS_UCN[:-1])
-        else:
+        elif vinculo in {"Externo/a", "Otros"}:
             carrera = ""
             ocupacion = st.text_input("Profesión u ocupación (opcional)")
+            campus = "No aplica"
+        else:
+            carrera = ""
+            ocupacion = ""
             campus = "No aplica"
         nacionalidad_op = st.selectbox("Nacionalidad", PAISES, index=PAISES.index("Chile"))
 
