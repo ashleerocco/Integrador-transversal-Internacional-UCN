@@ -123,7 +123,7 @@ for tab, idioma in zip(tabs, idiomas):
                                           "monto": g.loc[g.estado == "confirmado", "monto"].sum()}]))
         hojas[f"{codigo} {idioma}"] = pd.concat(bloques, ignore_index=True)
 
-st.download_button("⬇️ Descargar planilla Excel (una hoja por proyecto)", a_excel(hojas),
+st.download_button("Descargar planilla Excel (una hoja por proyecto)", a_excel(hojas),
                    file_name=f"pagos_cursos_idiomas_{date.today():%Y%m%d}.xlsx",
                    mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet")
 

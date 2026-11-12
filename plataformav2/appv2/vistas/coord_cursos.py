@@ -39,7 +39,7 @@ with tab_conv:
     convs = tabla(sb, "convocatoria", orden="fecha_apertura", desc=True)
     if not convs.empty:
         vista = convs[["id", "nombre", "periodo", "estado", "fecha_apertura", "fecha_cierre", "fecha_confirmacion",
-                       "fecha_inicio_curso", "fecha_fin_curso", "fechas_cuotas"]].copy()
+                       "fecha_inicio_curso", "fecha_fin_curso"]].copy()
         vista["estado"] = vista["estado"].map(ESTADOS_CONV)
         st.dataframe(renombrar(vista), hide_index=True, width="stretch")
         boton_excel(vista, "convocatorias", "xl_conv")
@@ -61,8 +61,6 @@ with tab_conv:
         c1, c2 = st.columns(2)
         f_ini = c1.date_input("Inicio de clases", d("fecha_inicio_curso"), format="DD/MM/YYYY")
         f_fin = c2.date_input("Fin de clases", d("fecha_fin_curso"), format="DD/MM/YYYY")
-        cuotas_txt = st.text_input("Fechas de las cuotas (DD/MM/AAAA separadas por coma)",
-                                   ", ".join(date.fromisoformat(x).strftime("%d/%m/%Y") for x in actual.get("fechas_cuotas") or []))
         estado = st.selectbox("Estado", list(ESTADOS_CONV), format_func=ESTADOS_CONV.get,
                               index=list(ESTADOS_CONV).index(actual.get("estado", "borrador")),
                               help="Al ABRIR, sus ofertas aparecen en el inicio público y en el Resumen. Al CERRAR, dejan de mostrarse.")
@@ -70,10 +68,6 @@ with tab_conv:
 
     if guardar:
         errores = []
-        try:
-            cuotas = [pd.to_datetime(x.strip(), dayfirst=True).date().isoformat() for x in cuotas_txt.split(",") if x.strip()]
-        except Exception:
-            cuotas, _ = [], errores.append("Las fechas de cuotas deben tener formato DD/MM/AAAA.")
         if not nombre.strip() or not periodo.strip():
             errores.append("Completa nombre y período.")
         if f_ci < f_ap:
@@ -86,7 +80,7 @@ with tab_conv:
             fila = {"nombre": nombre.strip(), "periodo": periodo.strip(), "fecha_apertura": f_ap.isoformat(),
                     "fecha_cierre": f_ci.isoformat(), "fecha_confirmacion": f_conf.isoformat() if f_conf else None,
                     "fecha_inicio_curso": f_ini.isoformat() if f_ini else None,
-                    "fecha_fin_curso": f_fin.isoformat() if f_fin else None, "fechas_cuotas": cuotas, "estado": estado}
+                    "fecha_fin_curso": f_fin.isoformat() if f_fin else None, "estado": estado}
             try:
                 if lista[sel]:
                     sb.table("convocatoria").update(fila).eq("id", lista[sel]).execute()

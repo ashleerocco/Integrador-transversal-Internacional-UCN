@@ -90,7 +90,7 @@ def a_excel(hojas: dict[str, pd.DataFrame]) -> bytes:
 def boton_excel(df: pd.DataFrame, nombre: str, key: str, hoja: str | None = None):
     """Descarga de la tabla tal como se ve (respetando los filtros activos)."""
     st.download_button(
-        "⬇️ Descargar Excel", data=a_excel({hoja or nombre: df}),
+        "Descargar Excel", data=a_excel({hoja or nombre: df}),
         file_name=f"{nombre}_{date.today():%Y%m%d}.xlsx",
         mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", key=key,
     )

@@ -116,6 +116,6 @@ with c3:
             libro = {p: sheets.leer(sb, p) for p in sheets.ESPEJO}
             st.session_state.respaldo = a_excel(libro)
     if st.session_state.get("respaldo"):
-        st.download_button("⬇️ Descargar respaldo", st.session_state.respaldo,
+        st.download_button("Descargar respaldo", st.session_state.respaldo,
                            file_name=f"respaldo_idiomas_{date.today():%Y%m%d}.xlsx",
                            mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet")
