@@ -1,0 +1,6 @@
+.streamlit/secrets.toml
+.env
+*.env
+.pendientes_drive/
+__pycache__/
+*.pyc

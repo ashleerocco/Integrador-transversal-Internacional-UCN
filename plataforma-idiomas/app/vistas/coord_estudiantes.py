@@ -69,12 +69,10 @@ df = pd.DataFrame([{
     "Licencia adjunta": "✅" if e.get("licencia_media_path") else "❌",
 } for e in est])
 
-c1, c2, c3 = st.columns([2, 2, 2])
+c1, c2 = st.columns([2, 2])
 buscar = c1.text_input("Buscar por nombre, documento o correo")
 vinculos = sorted(df["Vínculo UCN"].dropna().unique().tolist())
 filtro = c2.multiselect("Filtrar por vínculo UCN", vinculos)
-campus_opciones = sorted(df["Campus"].dropna().unique().tolist())
-filtro_campus = c3.multiselect("Filtrar por campus", campus_opciones)
 
 if buscar:
     b = buscar.strip().lower()
@@ -82,8 +80,6 @@ if buscar:
         lambda col: col.fillna("").str.lower().str.contains(b, regex=False)).any(axis=1)]
 if filtro:
     df = df[df["Vínculo UCN"].isin(filtro)]
-if filtro_campus:
-    df = df[df["Campus"].isin(filtro_campus)]
 
 st.caption(f"{len(df)} estudiante(s)")
 boton_descarga(df, "estudiantes", "Estudiantes", key="export_estudiantes")

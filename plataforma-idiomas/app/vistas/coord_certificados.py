@@ -61,7 +61,7 @@ if archivo and st.button("Guardar y entregar al estudiante"):
 st.divider()
 st.subheader("Todos los certificados")
 certs = sb.table("certificado").select(
-    "cumple_requisitos, estado, fecha_solicitud, fecha_entrega, "
+    "cumple_requisitos, estado, fecha_solicitud, fecha_entrega, archivo_path, "
     "inscripcion(estudiante(nombres, apellido_paterno), oferta_curso(periodo, curso(nombre)))"
 ).execute().data
 if certs:
@@ -72,11 +72,43 @@ if certs:
         "Estado": c["estado"],
         "Solicitado": c["fecha_solicitud"],
         "Entregado": c["fecha_entrega"],
+        "Certificado adjunto": "✅" if c.get("archivo_path") else "❌",
     } for c in certs])
     filtro = st.multiselect("Filtrar por estado", ["pendiente", "solicitado", "firmado", "entregado"])
     if filtro:
         df = df[df["Estado"].isin(filtro)]
     boton_descarga(df, "certificados", "Certificados", key="export_certificados")
     st.dataframe(df, hide_index=True, use_container_width=True)
+
+    certs_visibles = [certs[indice] for indice in df.index if certs[indice].get("archivo_path")]
+    if certs_visibles:
+        opciones_archivos = {
+            f"{nombre_completo(c['inscripcion']['estudiante'])} · {etiqueta_curso(c['inscripcion']['oferta_curso'])}": c
+            for c in certs_visibles
+        }
+        seleccion = st.selectbox(
+            "Certificado adjunto para ver o descargar", list(opciones_archivos),
+            key="certificado_adjunto_seleccionado",
+        )
+        certificado = opciones_archivos[seleccion]
+        if st.button("Generar acceso temporal (60 segundos)", key="crear_url_certificado"):
+            try:
+                respuesta = sb.storage.from_("certificados").create_signed_url(
+                    certificado["archivo_path"], 60,
+                )
+                url = respuesta.get("signedURL") or respuesta.get("signedUrl")
+                if url:
+                    st.session_state["url_certificado_adjunto"] = (
+                        certificado["archivo_path"], url,
+                    )
+                else:
+                    st.error("No se pudo generar el acceso temporal al certificado.")
+            except Exception:
+                st.error("No se pudo abrir el certificado. Inténtalo nuevamente.")
+        acceso = st.session_state.get("url_certificado_adjunto")
+        if acceso and acceso[0] == certificado["archivo_path"]:
+            st.link_button("Ver / descargar certificado", acceso[1])
+    elif not df.empty:
+        st.info("Los certificados visibles aún no tienen un archivo adjunto.")
 else:
     st.info("Aún no hay certificados registrados.")
