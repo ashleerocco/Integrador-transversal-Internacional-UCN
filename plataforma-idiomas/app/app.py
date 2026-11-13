@@ -59,10 +59,6 @@ PAGINAS = {
         st.Page("vistas/docente_asistencia.py", title="Asistencia", icon=":material/fact_check:", default=True),
         st.Page("vistas/docente_notas.py", title="Notas", icon=":material/edit_note:"),
     ],
-    "estudiante": [
-        st.Page("vistas/alumno_notas.py", title="Mis notas", icon=":material/edit_note:", default=True),
-        st.Page("vistas/alumno_certificado.py", title="Mi certificado", icon=":material/workspace_premium:"),
-    ],
 }
 
 st.logo(str(LOGO))

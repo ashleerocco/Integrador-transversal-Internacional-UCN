@@ -2,6 +2,7 @@ import streamlit as st
 import pandas as pd
 from utils.supabase_client import get_client
 from utils.estilos import encabezado
+from utils.exportar import boton_descarga
 
 sb = get_client()
 encabezado("Mis notas")
@@ -20,8 +21,9 @@ for i in insc:
     st.caption(f"Estado: {i['estado']}")
     notas = sorted(i["nota"], key=lambda n: n["numero"])
     if notas:
-        st.dataframe(pd.DataFrame([{"Evaluación": f"Nota {n['numero']}", "Nota": n["nota"]} for n in notas]),
-                     hide_index=True)
+        df = pd.DataFrame([{"Evaluación": f"Nota {n['numero']}", "Nota": n["nota"]} for n in notas])
+        boton_descarga(df, f"mis_notas_{i['oferta_curso']['periodo']}", "Mis notas", key=f"export_mis_notas_{i['id']}")
+        st.dataframe(df, hide_index=True)
     else:
         st.write("Aún no hay notas registradas.")
     if i["nota_final"] is not None:

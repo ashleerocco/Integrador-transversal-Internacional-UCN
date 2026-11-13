@@ -1,10 +1,12 @@
 from datetime import date
 
 import streamlit as st
+import pandas as pd
 
 from utils.datos import nombre_completo
 from utils.estilos import encabezado
 from utils.supabase_client import get_client
+from utils.exportar import boton_descarga
 
 sb = get_client()
 perfil = st.session_state["perfil"]
@@ -20,7 +22,10 @@ def aprobar(s: dict):
     else:
         campos = ["nombres", "apellido_paterno", "apellido_materno", "sexo",
                   "tipo_documento", "documento", "correo", "telefono",
-                  "tipo_estudiante_id", "unidad_ucn", "campus"]
+                  "tipo_estudiante_id", "unidad_ucn", "carrera", "ocupacion",
+                  "genero", "nombre_social", "pronombres", "campus", "nacionalidad",
+                  "condicion_salud", "cedula_path", "licencia_media_path",
+                  "consentimiento_datos", "fecha_consentimiento"]
         datos = {k: s[k] for k in campos if s.get(k) not in (None, "")}
         est_id = sb.table("estudiante").insert(datos).execute().data[0]["id"]
 
@@ -59,6 +64,16 @@ sols = sb.table("solicitud_inscripcion").select(
 ).eq("estado", estado).order("id", desc=True).execute().data
 
 st.caption(f"{len(sols)} solicitud(es) {estado}(s)")
+if sols:
+    df = pd.DataFrame([{
+        "Estudiante": nombre_completo(s), "Curso": s["oferta_curso"]["curso"]["nombre"],
+        "Período": s["oferta_curso"]["periodo"], "Documento": s["documento"],
+        "Correo": s["correo"], "Teléfono": s["telefono"],
+        "Vínculo UCN": s["tipo_estudiante"]["nombre"],
+        "Carrera / Unidad": s["unidad_ucn"], "Campus": s["campus"],
+        "Recibida": s["creado_en"], "Observación": s.get("observacion"),
+    } for s in sols])
+    boton_descarga(df, f"solicitudes_{estado}", "Solicitudes", key=f"export_solicitudes_{estado}")
 if not sols:
     st.info("No hay solicitudes en este estado.")
 
@@ -89,7 +104,7 @@ for s in sols:
                     if "duplicate" in msg or "23505" in msg:
                         st.error("Ya existe un estudiante con ese correo o documento. Revísalo en Estudiantes.")
                     else:
-                        st.error(f"No se pudo aprobar: {msg}")
+                        st.error("No se pudo aprobar la solicitud. Inténtalo nuevamente.")
             if b2.button("Rechazar", key=f"r{s['id']}"):
                 rechazar(s, motivo)
                 st.rerun()

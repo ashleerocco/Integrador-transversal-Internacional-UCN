@@ -3,6 +3,7 @@ import streamlit as st
 
 from utils.estilos import encabezado
 from utils.supabase_client import get_client
+from utils.exportar import boton_descarga
 
 sb = get_client()
 encabezado("Cursos", "Registra y consulta las ofertas de cursos de idiomas")
@@ -94,6 +95,7 @@ if ofertas:
         "Término": o["fecha_termino"],
         "Estado": o["estado"],
     } for o in ofertas])
+    boton_descarga(df, "cursos", "Cursos", key="export_cursos")
     st.dataframe(df, hide_index=True, use_container_width=True)
 else:
     st.info("Aún no hay cursos registrados.")
