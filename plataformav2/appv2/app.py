@@ -1,6 +1,6 @@
 import streamlit as st
 
-from utils.estilos import FAVICON, LOGO, aplicar_estilos, banner_convocatoria, encabezado, panel_login
+from utils.estilos import FAVICON, LOGO, aplicar_estilos, banner_convocatoria, encabezado, panel_login, portada_inscripcion
 from utils.formulario_inscripcion import _fecha_larga, render_formulario_inscripcion
 from utils.supabase_client import get_client, login, logout
 
@@ -43,6 +43,7 @@ def pantalla_inicio():
     with der:
         tab_insc, tab_login = st.tabs(["📝 Inscripción a cursos", "🔐 Iniciar sesión"])
         with tab_insc:
+            portada_inscripcion()
             if convocatorias_abiertas(sb):
                 render_formulario_inscripcion(sb, modo="publico")
         with tab_login:
