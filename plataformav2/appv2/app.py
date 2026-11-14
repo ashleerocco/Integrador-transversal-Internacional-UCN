@@ -41,7 +41,7 @@ def pantalla_inicio():
     with izq:
         panel_login()
     with der:
-        tab_insc, tab_login = st.tabs(["📝 Inscripción a cursos", "🔐 Iniciar sesión"])
+        tab_insc, tab_login = st.tabs(["Inscripción a cursos", "Iniciar sesión"])
         with tab_insc:
             portada_inscripcion()
             if convocatorias_abiertas(sb):

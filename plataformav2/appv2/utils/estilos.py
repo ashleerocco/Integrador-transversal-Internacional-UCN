@@ -97,6 +97,17 @@ h2, h3 {{ color: {MORADO}; font-weight: 700; }}
     background: rgba(255,255,255,.14); border-color: #FFFFFF; color: #FFFFFF; }}
 
 /* ---------- Botones ---------- */
+[data-testid="stTabs"] [role="tablist"] {{ gap: .6rem; padding: .3rem 0 .6rem; }}
+[data-testid="stTabs"] [role="tab"] {{
+    background: #EDE3FA; color: {MORADO}; border: 1px solid {MORADO};
+    border-radius: 10px; padding: .6rem 1rem; height: auto; font-weight: 600;
+}}
+[data-testid="stTabs"] [role="tab"]:hover {{ background: #DFD0F3; }}
+[data-testid="stTabs"] [role="tab"][aria-selected="true"] {{
+    background: {MORADO}; color: #FFFFFF;
+}}
+[data-testid="stTabs"] [role="tab"][aria-selected="true"] p {{ color: #FFFFFF; }}
+[data-testid="stTabs"] [role="tab"]:focus-visible {{ outline: 3px solid {VIOLETA}; outline-offset: 2px; }}
 .stButton > button, .stFormSubmitButton > button, .stDownloadButton > button,
 [data-testid="stBaseButton-secondary"], [data-testid="stBaseButton-secondaryFormSubmit"] {{
     border-radius: 10px; font-weight: 600; border: 1.5px solid {MORADO}; color: {MORADO}; }}

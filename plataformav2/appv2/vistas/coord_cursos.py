@@ -32,7 +32,7 @@ def refrescar(pestanas=("convocatorias_ofertas",)):
     st.rerun()
 
 
-tab_conv, tab_ofertas, tab_doc = st.tabs(["📣 Convocatorias", "📚 Ofertas de cursos", "👩‍🏫 Docentes"])
+tab_conv, tab_ofertas, tab_doc = st.tabs(["Convocatorias", "Ofertas de cursos", "Docentes"])
 
 # =========================================================================== Convocatorias
 with tab_conv:
