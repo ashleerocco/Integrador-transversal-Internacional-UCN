@@ -97,7 +97,6 @@ def render_formulario_inscripcion(sb, modo: str = "publico") -> None:
 
     # ------------------------------------------------------------------ A
     if modo == "publico":
-        encabezado("Inscríbete en un curso de idiomas", "Completa el formulario; no necesitas crear una cuenta")
         st.info(
             f"**{config(sb, 'cabecera_formulario', '')}**\n\n{config(sb, 'cabecera_detalle', '')}\n\n"
             f"Consultas: {correo_contacto} · Web: {config(sb, 'web', '')} · "

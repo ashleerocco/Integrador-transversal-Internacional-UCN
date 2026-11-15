@@ -20,7 +20,7 @@ if st.session_state.get("fc_mensaje"):
     st.success(st.session_state.pop("fc_mensaje"))
 
 t_todos, t_pagados, t_nuevo, t_editar = st.tabs(
-    ["👥 Todos los estudiantes", "💳 Estudiantes pagados", "➕ Registrar estudiante", "✏️ Editar datos"])
+    ["Todos los estudiantes", "Estudiantes pagados", "Registrar estudiante", "Editar datos"])
 ofertas = tabla(sb, "v_oferta", "oferta_id, etiqueta", orden="oferta_id", desc=True)
 ofertas_map = dict(zip(ofertas.etiqueta, ofertas.oferta_id)) if not ofertas.empty else {}
 
