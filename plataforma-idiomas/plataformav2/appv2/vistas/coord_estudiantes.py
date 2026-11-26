@@ -29,15 +29,16 @@ def filtros(df: pd.DataFrame, clave: str, col_curso: str | None = None) -> pd.Da
     c1, c2, c3, c4 = st.columns(4)
     f_v = c1.multiselect("Vínculo UCN", sorted(df["vinculo_nombre"].dropna().unique()), key=f"{clave}_v")
     f_g = c2.multiselect("Género", sorted(df["genero"].dropna().unique()), key=f"{clave}_g")
-    f_c = c3.multiselect("Campus", sorted(df["campus_nombre"].replace("", "Sin campus").fillna("Sin campus").unique()),
-                         key=f"{clave}_c")
+    campus = df["campus_nombre"].dropna()
+    campus = campus[(campus != "") & ~campus.str.contains(": ", regex=False)]
+    f_c = c3.multiselect("Campus", sorted(campus.unique()), key=f"{clave}_c")
     f_o = c4.multiselect("Curso", list(ofertas_map), key=f"{clave}_o")
     if f_v:
         df = df[df.vinculo_nombre.isin(f_v)]
     if f_g:
         df = df[df.genero.isin(f_g)]
     if f_c:
-        df = df[df.campus_nombre.replace("", "Sin campus").fillna("Sin campus").isin(f_c)]
+        df = df[df.campus_nombre.isin(f_c)]
     if f_o:
         ids = {ofertas_map[o] for o in f_o}
         if col_curso == "oferta_id":
