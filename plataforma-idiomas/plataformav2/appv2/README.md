@@ -47,6 +47,32 @@ plataforma-idiomas/
    4. Crear la hoja **"A+S Idiomas – Base de datos"**, compartirla como *Editor* con la cuenta de servicio y poner
       su ID en `SHEETS_ID`. Las pestañas se crean solas. Recomendación: que el resto de la unidad tenga acceso
       de *lector* (es un espejo: lo que se edite a mano se sobrescribe).
+   - **Drive sin Google Cloud (recomendado):** la cuenta del socio comunitario que administra la carpeta
+     **"A+S Idiomas"** instala un pequeño Apps Script que hace de puente. Nada queda asociado a cuentas de estudiantes.
+     1. Con esa cuenta: [script.google.com](https://script.google.com) → *Nuevo proyecto* → pegar
+        [`apps_script/Codigo.gs`](apps_script/Codigo.gs).
+     2. Completar `CARPETA_RAIZ_ID` (parte final de la URL de la carpeta) y `TOKEN` (una clave larga inventada).
+     3. Seleccionar la función `probar` → ▶ *Ejecutar* → aceptar permisos. El registro debe decir "Acceso correcto".
+     4. *Implementar → Nueva implementación → Aplicación web*. *Ejecutar como:* **Yo**.
+        *Quién tiene acceso:* **Cualquier usuario**. Copiar la URL que termina en `/exec`.
+     5. En `secrets.toml` (y en *Secrets* de Streamlit Cloud): `DRIVE_APPS_SCRIPT_URL` y `DRIVE_APPS_SCRIPT_TOKEN`.
+     6. En la app: **Resumen → Probar conexión con Drive**, y luego **Reintentar subidas** para la cola local.
+     - Si se cambia el código del script, hay que volver a implementarlo (*Gestionar implementaciones → Editar →
+       Nueva versión*) para que la URL use la versión nueva.
+     - El script solo acepta pedidos con el TOKEN y solo lee o borra archivos dentro de "A+S Idiomas".
+   - **Importante (Drive con Google Cloud):** una cuenta de servicio *no tiene cuota* y Google rechaza sus subidas a una carpeta
+     de "Mi unidad" (`storageQuotaExceeded`). Si no tienes unidad compartida, usa OAuth con tu cuenta:
+     1. Google Cloud → *APIs y servicios → Pantalla de consentimiento OAuth*: tipo *Interno* si tu cuenta es de
+        la UCN (si es *Externo*, agrégate como usuario de prueba y luego pulsa *Publicar app*: en modo
+        "Prueba" el token vence a los 7 días).
+     2. *Credenciales → Crear credenciales → ID de cliente OAuth → App de escritorio* → descargar el JSON.
+     3. `pip install google-auth-oauthlib` y `python obtener_token_drive.py client_secret_XXX.json`; inicia
+        sesión con la cuenta dueña de la carpeta "A+S Idiomas" y pega el bloque `[google_oauth]` que imprime
+        en `secrets.toml` (y en *Secrets* de Streamlit Cloud).
+     4. Pon el ID de la carpeta en `DRIVE_CARPETA_RAIZ_ID`. Con esto la cuenta de servicio solo se usa para Sheets.
+   - Cada archivo subido guarda en Supabase su `drive_file_id` y `drive_url` (enlace "Abrir en Drive"):
+     `solicitud.cedula_drive_url / licencia_drive_url`, `documento_estudiante.drive_url`,
+     `pago.comprobante_drive_url` y `certificado.drive_url`. En la app se ven como botón y se pueden descargar.
    - Sin Drive configurado la app funciona: los archivos quedan "pendientes de subir" en `PENDIENTES_DIR`
      y se reintentan desde Resumen o Solicitudes. En Streamlit Community Cloud ese disco no es permanente:
      configurar Drive antes de abrir el formulario público.

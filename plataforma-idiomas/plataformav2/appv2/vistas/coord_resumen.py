@@ -109,6 +109,14 @@ with c2:
     if st.button("⬆️ Reintentar subidas", disabled=n == 0):
         ok, mal = drive.reintentar_pendientes(sb)
         st.success(f"Subidos: {ok}. Fallidos: {mal}.")
+    if st.button("Probar conexión con Drive"):
+        if not drive.configurado():
+            st.warning("Drive no está configurado en los secrets.")
+        else:
+            try:
+                st.success(f"Conectado a la carpeta «{drive.probar_conexion()}».")
+            except Exception as e:
+                st.error(f"Sin conexión con Drive: {e}")
 with c3:
     st.markdown("**Respaldo completo (Excel)**")
     if st.button("Preparar respaldo"):
