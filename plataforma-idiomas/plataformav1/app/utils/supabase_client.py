@@ -1,13 +1,23 @@
+"""Cliente Supabase y login por rol (reciclado de la versión anterior).
+
+Cambios respecto de v1: el cliente apunta al esquema `idiomas` y el perfil se
+lee de `idiomas.perfil` (roles coordinacion / docente / alumno).
+La app usa SOLO la clave anon/publishable: Supabase aplica RLS con la sesión de
+cada usuario. La clave service_role no se usa ni se envía al navegador.
+"""
 import streamlit as st
-from supabase import create_client, Client
+from supabase import ClientOptions, create_client, Client
+
+ESQUEMA = "idiomas"
 
 
 def get_client() -> Client:
-    """Un cliente POR SESIÓN de navegador (nunca compartido entre usuarios).
-    Usa la clave anon: así Supabase aplica las políticas RLS del usuario logueado."""
+    """Un cliente POR SESIÓN de navegador (nunca compartido entre usuarios)."""
     if "sb" not in st.session_state:
         st.session_state.sb = create_client(
-            st.secrets["SUPABASE_URL"], st.secrets["SUPABASE_ANON_KEY"]
+            st.secrets["SUPABASE_URL"],
+            st.secrets["SUPABASE_ANON_KEY"],
+            options=ClientOptions(schema=ESQUEMA, persist_session=False),
         )
     return st.session_state.sb
 
@@ -34,3 +44,14 @@ def logout():
     except Exception:
         pass
     st.session_state.clear()
+
+
+def perfil_actual() -> dict:
+    return st.session_state.get("perfil") or {}
+
+
+def exigir_rol(*roles: str):
+    """Defensa en la interfaz; la seguridad real la aplica RLS."""
+    if perfil_actual().get("rol") not in roles:
+        st.error("No tienes acceso a esta sección.")
+        st.stop()
