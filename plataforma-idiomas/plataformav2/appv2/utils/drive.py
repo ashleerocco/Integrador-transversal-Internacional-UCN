@@ -1,7 +1,13 @@
 """Archivos en Google Drive (carpeta raíz "A+S Idiomas").
 
-- Se usa una cuenta de servicio (st.secrets["gcp_service_account"]) con la
-  carpeta raíz compartida con ella (st.secrets["DRIVE_CARPETA_RAIZ_ID"]).
+- Conexión (en este orden de preferencia):
+  1. Apps Script del socio comunitario (apps_script/Codigo.gs), sin Google Cloud:
+     st.secrets["DRIVE_APPS_SCRIPT_URL"] y st.secrets["DRIVE_APPS_SCRIPT_TOKEN"].
+     La carpeta raíz se define en el propio script.
+  2. OAuth de una cuenta Google (st.secrets["google_oauth"], ver
+  obtener_token_drive.py) o, si no está, la cuenta de servicio
+  (st.secrets["gcp_service_account"], solo sirve con unidades compartidas).
+  En 2 y 3 la carpeta raíz es st.secrets["DRIVE_CARPETA_RAIZ_ID"].
 - Los archivos NO se comparten con "cualquiera con el enlace": heredan el
   acceso de la carpeta (solo cuentas autorizadas de la unidad).
 - En la BD solo se guarda drive_file_id y drive_url, nunca el binario.
@@ -15,6 +21,7 @@ Estructura:
 """
 from __future__ import annotations
 
+import base64
 import io
 import json
 import os
@@ -40,19 +47,78 @@ def _cola() -> Path:
     return ruta
 
 
-def configurado() -> bool:
+def _usa_oauth() -> bool:
+    """True si hay credenciales OAuth de una cuenta Google normal ([google_oauth] en secrets).
+
+    Se prefiere sobre la cuenta de servicio porque esta no tiene cuota propia: solo puede
+    subir a unidades compartidas. Con OAuth los archivos quedan en el Drive de esa cuenta.
+    """
     try:
-        return bool(st.secrets.get("gcp_service_account")) and bool(st.secrets.get("DRIVE_CARPETA_RAIZ_ID"))
+        o = st.secrets.get("google_oauth")
+        return bool(o and o.get("client_id") and o.get("client_secret") and o.get("refresh_token"))
+    except Exception:
+        return False
+
+
+def _usa_script() -> bool:
+    try:
+        return bool(st.secrets.get("DRIVE_APPS_SCRIPT_URL")) and bool(st.secrets.get("DRIVE_APPS_SCRIPT_TOKEN"))
+    except Exception:
+        return False
+
+
+def _script(accion: str, **datos) -> dict:
+    """Llama al Apps Script (POST JSON). Lanza RuntimeError si responde con error."""
+    import httpx
+
+    r = httpx.post(st.secrets["DRIVE_APPS_SCRIPT_URL"],
+                   json={"token": st.secrets["DRIVE_APPS_SCRIPT_TOKEN"], "accion": accion, **datos},
+                   follow_redirects=True, timeout=120)
+    r.raise_for_status()
+    try:
+        res = r.json()
+    except ValueError:
+        # Google devuelve una página HTML cuando la implementación no es "Cualquier usuario"
+        raise RuntimeError("El Apps Script no respondió JSON (revisar acceso 'Cualquier usuario' y la URL /exec)")
+    if not res.get("ok"):
+        raise RuntimeError(f"Apps Script: {res.get('error')}")
+    return res
+
+
+def probar_conexion() -> str:
+    """Devuelve el nombre de la carpeta raíz si Drive responde (para diagnóstico)."""
+    if _usa_script():
+        return _script("probar")["carpeta"]
+    return _servicio().files().get(fileId=st.secrets["DRIVE_CARPETA_RAIZ_ID"], fields="name",
+                                   supportsAllDrives=True).execute()["name"]
+
+
+def configurado() -> bool:
+    if _usa_script():
+        return True
+    try:
+        cred = _usa_oauth() or bool(st.secrets.get("gcp_service_account"))
+        return cred and bool(st.secrets.get("DRIVE_CARPETA_RAIZ_ID"))
     except Exception:
         return False
 
 
 @st.cache_resource(show_spinner=False)
 def _servicio():
-    from google.oauth2 import service_account
     from googleapiclient.discovery import build
 
-    cred = service_account.Credentials.from_service_account_info(dict(st.secrets["gcp_service_account"]), scopes=SCOPES)
+    if _usa_oauth():
+        from google.oauth2.credentials import Credentials
+
+        o = st.secrets["google_oauth"]
+        cred = Credentials(None, refresh_token=o["refresh_token"], client_id=o["client_id"],
+                           client_secret=o["client_secret"], token_uri="https://oauth2.googleapis.com/token",
+                           scopes=SCOPES)
+    else:
+        from google.oauth2 import service_account
+
+        cred = service_account.Credentials.from_service_account_info(dict(st.secrets["gcp_service_account"]),
+                                                                     scopes=SCOPES)
     return build("drive", "v3", credentials=cred, cache_discovery=False)
 
 
@@ -94,11 +160,15 @@ def asegurar_ruta(partes: list[str]) -> str:
 
 def subir(contenido: bytes, nombre: str, ext: str, ruta: list[str], intentos: int = 3) -> dict:
     """Sube a Drive con reintentos. Devuelve {drive_file_id, drive_url}. Lanza excepción si falla."""
-    from googleapiclient.http import MediaIoBaseUpload
-
     ultimo = None
     for i in range(intentos):
         try:
+            if _usa_script():
+                res = _script("subir", nombre=nombre, mime=MIME.get(ext, "application/octet-stream"), ruta=ruta,
+                              contenido=base64.b64encode(contenido).decode("ascii"))
+                return {"drive_file_id": res["id"], "drive_url": res["url"]}
+            from googleapiclient.http import MediaIoBaseUpload
+
             carpeta = asegurar_ruta(ruta)
             media = MediaIoBaseUpload(io.BytesIO(contenido), mimetype=MIME.get(ext, "application/octet-stream"),
                                       resumable=False)
@@ -185,7 +255,9 @@ def _anotar(sb, destino: dict, res: dict):
 
 
 def descargar(file_id: str) -> bytes:
-    """Descarga con la cuenta de servicio (el enlace no es público)."""
+    """Descarga con las credenciales de la app (el enlace no es público)."""
+    if _usa_script():
+        return base64.b64decode(_script("descargar", id=file_id)["contenido"])
     from googleapiclient.http import MediaIoBaseDownload
 
     buf = io.BytesIO()
@@ -201,6 +273,9 @@ def eliminar(file_ids: list[str]):
     """Borra archivos recién subidos cuando la BD rechaza el registro (evita huérfanos)."""
     for fid in file_ids or []:
         try:
-            _servicio().files().delete(fileId=fid, supportsAllDrives=True).execute()
+            if _usa_script():
+                _script("eliminar", id=fid)
+            else:
+                _servicio().files().delete(fileId=fid, supportsAllDrives=True).execute()
         except Exception as e:
             log.warning("No se pudo eliminar archivo huérfano: %s", type(e).__name__)
