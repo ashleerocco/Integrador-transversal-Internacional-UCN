@@ -1,0 +1,7 @@
+streamlit>=1.48
+supabase>=2.5
+pandas
+openpyxl
+gspread>=6.0
+google-api-python-client
+google-auth

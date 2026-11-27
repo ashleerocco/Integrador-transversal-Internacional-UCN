@@ -1,82 +1,74 @@
-import streamlit as st
+"""Notas (pantalla de v1). Nuevo: solo alumnos pagados, una fila por alumno y
+nota final calculada en la BD (columna generada: promedio de las 3 notas, 1 decimal)."""
 import pandas as pd
-from utils.supabase_client import get_client
+import streamlit as st
+
+from utils import sheets
+from utils.datos import ofertas_opciones, tabla
+from utils.errores import mensaje_error
 from utils.estilos import encabezado
-from utils.datos import nombre_completo
-from utils.exportar import boton_descarga
+from utils.excel import boton_excel
+from utils.supabase_client import exigir_rol, get_client
 
+exigir_rol("coordinacion", "docente")
 sb = get_client()
-perfil = st.session_state.perfil
-encabezado("Notas")  # RF-05
+encabezado("Notas")
 
-q = sb.table("oferta_curso").select("id, periodo, estado, curso(nombre)")
-if perfil["rol"] == "docente":
-    q = q.eq("docente_id", perfil["docente_id"])
-ofertas = q.order("periodo", desc=True).execute().data
-
-if not ofertas:
-    st.info("No hay cursos asignados.")
+op = ofertas_opciones(sb)
+if not op:
+    st.info("No tienes cursos asignados.")
     st.stop()
-
-op = {f"{o['curso']['nombre']} · {o['periodo']} ({o['estado']})": o["id"] for o in ofertas}
 oferta_id = op[st.selectbox("Curso", list(op))]
 
-insc = sb.table("inscripcion").select(
-    "id, nota_final, estudiante(nombres, apellido_paterno, apellido_materno)"
-).eq("oferta_id", oferta_id).in_("estado", ["inscrito", "aprobado", "reprobado"]).execute().data
-
-if not insc:
-    st.info("No hay estudiantes inscritos en este curso.")
+alumnos = sb.rpc("alumnos_de_oferta", {"p_oferta_id": oferta_id}).execute().data
+if not alumnos:
+    st.info("Este curso aún no tiene alumnos en «Estudiantes pagados».")
     st.stop()
 
-notas = sb.table("nota").select("inscripcion_id, numero, nota").in_(
-    "inscripcion_id", [i["id"] for i in insc]).execute().data
-mapa = {(n["inscripcion_id"], n["numero"]): n["nota"] for n in notas}
+notas = tabla(sb, "nota", oferta_id=oferta_id)
+mapa = {n["rut_estudiante"]: n for n in notas.to_dict("records")} if not notas.empty else {}
+
+
+def num(v):
+    return None if v is None or pd.isna(v) else float(v)
+
 
 df = pd.DataFrame([{
-    "inscripcion_id": i["id"],
-    "Estudiante": nombre_completo(i["estudiante"]),
-    "Nota 1": mapa.get((i["id"], 1)),
-    "Nota 2": mapa.get((i["id"], 2)),
-    "Nota 3": mapa.get((i["id"], 3)),
-    "Nota final": i.get("nota_final"),
-} for i in insc])
+    "rut": a["rut"],
+    "Estudiante": a["nombre_completo"] + (f" ({a['nombre_social']})" if a.get("nombre_social") else ""),
+    "Nota 1": num(mapa.get(a["rut"], {}).get("nota1")),
+    "Nota 2": num(mapa.get(a["rut"], {}).get("nota2")),
+    "Nota 3": num(mapa.get(a["rut"], {}).get("nota3")),
+    "Nota final": num(mapa.get(a["rut"], {}).get("nota_final")),
+} for a in alumnos])
 
-cfg = {"inscripcion_id": None}
+cfg = {"rut": None, "Nota final": st.column_config.NumberColumn("Nota final (automática)", format="%.1f")}
 for c in ("Nota 1", "Nota 2", "Nota 3"):
     cfg[c] = st.column_config.NumberColumn(c, min_value=1.0, max_value=7.0, step=0.1, format="%.1f")
-cfg["Nota final"] = st.column_config.NumberColumn(
-    "Nota final", min_value=1.0, max_value=7.0, step=0.1, format="%.1f",
-)
 
-editado = st.data_editor(
-    df, hide_index=True, use_container_width=True,
-    disabled=["inscripcion_id", "Estudiante"], column_config=cfg,
-    key=f"notas_{oferta_id}",
-)
-boton_descarga(editado.drop(columns=["inscripcion_id"]), "notas_curso", "Notas", key=f"export_notas_{oferta_id}")
+editado = st.data_editor(df, hide_index=True, width="stretch",
+                         disabled=["rut", "Estudiante", "Nota final"], column_config=cfg, key=f"notas_{oferta_id}")
+st.caption("Escala 1,0 a 7,0. La nota final se calcula sola cuando las 3 notas están ingresadas.")
 
 if st.button("Guardar notas", type="primary"):
-    filas = []
-    finales = []
+    filas, errores = [], []
     for r in editado.to_dict("records"):
-        for k in (1, 2, 3):
-            valor = r[f"Nota {k}"]
-            if pd.notna(valor):
-                filas.append({"inscripcion_id": int(r["inscripcion_id"]),
-                              "numero": k, "nota": round(float(valor), 1)})
-        nota_final = r["Nota final"]
-        finales.append({
-            "inscripcion_id": int(r["inscripcion_id"]),
-            "nota_final": round(float(nota_final), 1) if pd.notna(nota_final) else None,
-        })
-    try:
-        if filas:
-            sb.table("nota").upsert(filas, on_conflict="inscripcion_id,numero").execute()
-        for fila in finales:
-            sb.table("inscripcion").update({"nota_final": fila["nota_final"]}).eq(
-                "id", fila["inscripcion_id"],
-            ).execute()
-        st.success("Notas y notas finales guardadas.")
-    except Exception:
-        st.error("No se pudieron guardar las notas. Inténtalo nuevamente.")
+        valores = {f"nota{k}": (round(float(r[f'Nota {k}']), 1) if pd.notna(r[f"Nota {k}"]) else None) for k in (1, 2, 3)}
+        if any(v is not None and not 1.0 <= v <= 7.0 for v in valores.values()):
+            errores.append(r["Estudiante"])
+        elif any(v is not None for v in valores.values()) or r["rut"] in mapa:
+            filas.append({"rut_estudiante": r["rut"], "oferta_id": oferta_id, **valores})
+    if errores:
+        st.error("Notas fuera de rango (1,0 a 7,0): " + ", ".join(errores))
+    elif not filas:
+        st.warning("No hay notas para guardar.")
+    else:
+        try:
+            sb.table("nota").upsert(filas, on_conflict="rut_estudiante,oferta_id").execute()
+            sheets.tras_escritura(sb, ["notas"])
+            st.success("Notas guardadas.")
+            st.rerun()
+        except Exception as e:
+            st.error(mensaje_error(e, "guardar las notas"))
+
+boton_excel(df.drop(columns=["rut"]), "notas_curso", "xl_notas")

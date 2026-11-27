@@ -1,4 +1,0 @@
-streamlit>=1.40
-supabase>=2.5
-pandas
-openpyxl>=3.1
