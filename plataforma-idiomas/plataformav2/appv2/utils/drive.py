@@ -43,6 +43,9 @@ CARPETA_CERTIFICADOS = "Certificados"
 
 def _cola() -> Path:
     ruta = Path(os.environ.get("PENDIENTES_DIR") or st.secrets.get("PENDIENTES_DIR", ".pendientes_drive"))
+    if not ruta.is_absolute():
+        # relativa a la carpeta de la app (appv2), no a la carpeta desde donde se ejecutó «streamlit run»
+        ruta = Path(__file__).resolve().parent.parent / ruta
     ruta.mkdir(parents=True, exist_ok=True)
     return ruta
 
@@ -267,6 +270,42 @@ def descargar(file_id: str) -> bytes:
     while not listo:
         _, listo = bajada.next_chunk()
     return buf.getvalue()
+
+
+# Firmas de los formatos que acepta la app (los primeros bytes de cada archivo)
+_FIRMAS = [(b"%PDF", "pdf", "application/pdf"), (b"\x89PNG", "png", "image/png"),
+           (b"\xff\xd8\xff", "jpg", "image/jpeg")]
+
+
+def tipo_archivo(contenido: bytes) -> tuple[str | None, str]:
+    """(extensión, tipo MIME) según el contenido real del archivo, no según su nombre."""
+    for firma, ext, mime in _FIRMAS:
+        if contenido.startswith(firma):
+            return ext, mime
+    return None, "application/octet-stream"
+
+
+def descargar_archivo(file_id: str, nombre_respaldo: str) -> dict:
+    """Descarga el archivo con un nombre que incluye su extensión real (.pdf, .jpg, .png).
+
+    Devuelve {"contenido", "nombre", "mime"} listo para st.download_button.
+    """
+    nombre = None
+    if _usa_script():
+        res = _script("descargar", id=file_id)
+        contenido, nombre = base64.b64decode(res["contenido"]), res.get("nombre")
+    else:
+        nombre = _servicio().files().get(fileId=file_id, fields="name", supportsAllDrives=True).execute().get("name")
+        contenido = descargar(file_id)
+    ext, mime = tipo_archivo(contenido)
+    nombre = (nombre or nombre_respaldo).strip()
+    if ext:
+        base, punto, actual = nombre.rpartition(".")
+        actual = actual.lower() if punto else ""
+        if actual not in ({"jpg", "jpeg"} if ext == "jpg" else {ext}):
+            # extensión de imagen/PDF equivocada → se reemplaza; sin extensión → se agrega
+            nombre = f"{base}.{ext}" if actual in {"pdf", "png", "jpg", "jpeg"} else f"{nombre}.{ext}"
+    return {"contenido": contenido, "nombre": nombre, "mime": mime}
 
 
 def eliminar(file_ids: list[str]):

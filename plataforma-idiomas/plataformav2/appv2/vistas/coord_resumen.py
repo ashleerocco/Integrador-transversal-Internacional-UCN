@@ -4,7 +4,7 @@ from datetime import date
 import pandas as pd
 import streamlit as st
 
-from utils import drive, sheets
+from utils import drive, respaldo_documentos, sheets
 from utils.datos import clp, tabla
 from utils.estilos import VIOLETA, encabezado
 from utils.excel import a_excel, boton_excel, renombrar
@@ -13,6 +13,17 @@ from utils.supabase_client import exigir_rol, get_client
 exigir_rol("coordinacion")
 sb = get_client()
 encabezado("Resumen general")
+
+# Archivos que no alcanzaron a subir a Drive (Drive no respondía al enviarlos):
+# se reintentan solos una vez por sesión al abrir Resumen, sin botón.
+if drive.pendientes() and drive.configurado() and not st.session_state.get("reintento_drive_hecho"):
+    st.session_state.reintento_drive_hecho = True
+    subidos, siguen = drive.reintentar_pendientes(sb)
+    if subidos:
+        st.toast(f"{subidos} documento(s) pendientes se subieron a Drive.")
+    if siguen:
+        st.warning(f"{siguen} documento(s) siguen sin subir a Drive. Se reintentará la próxima vez que "
+                   "abras la plataforma; mientras tanto van incluidos en el respaldo de documentos.")
 
 est = tabla(sb, "v_estudiante", "rut, vinculo_nombre, genero, campus_nombre")
 pagados = tabla(sb, "estudiante_pagado", "rut, oferta_id, monto_pagado, monto_total, estado_pago")
@@ -87,28 +98,25 @@ else:
 
 # ---------------------------------------------------------------- sync, Drive pendiente y respaldo
 st.divider()
-st.subheader("Respaldo y sincronización")
-c1, c2, c3 = st.columns(3)
-with c1:
-    st.markdown("**Google Sheets (espejo)**")
-    if not sheets.configurado():
-        st.caption("Sin configurar (falta SHEETS_ID o la cuenta de servicio).")
-    errores = sheets.pestanas_con_error(sb)
-    if errores:
-        st.warning("Pestañas con error pendiente: " + ", ".join(errores))
-    if st.button("🔄 Sincronizar ahora", disabled=not sheets.configurado()):
-        with st.spinner("Sincronizando…"):
-            res = sheets.sincronizar_ahora(sb)
-        malos = [p for p, r in res.items() if r != "ok"]
-        (st.error if malos else st.success)(
-            f"Fallaron: {', '.join(malos)} (quedó registrado en sync_log)" if malos else "Hoja actualizada.")
+st.subheader("Respaldo")
+c2, c3 = st.columns(2)
 with c2:
-    st.markdown("**Archivos pendientes de subir a Drive**")
-    n = drive.pendientes()
-    st.caption(f"{n} archivo(s) en cola.")
-    if st.button("⬆️ Reintentar subidas", disabled=n == 0):
-        ok, mal = drive.reintentar_pendientes(sb)
-        st.success(f"Subidos: {ok}. Fallidos: {mal}.")
+    st.markdown("**Respaldo de documentos (ZIP)**")
+    st.caption("Documentos de identidad, licencias, comprobantes de pago y certificados, ordenados en carpetas.")
+    if st.button("Preparar respaldo de documentos"):
+        barra = st.progress(0.0, text="Descargando documentos de Drive…")
+        zip_docs, n_ok, fallidos = respaldo_documentos.generar_zip(
+            sb, lambda i, total: barra.progress(i / total, text=f"Descargando documentos… {i} de {total}"))
+        barra.empty()
+        st.session_state.respaldo_docs = zip_docs
+        st.session_state.respaldo_docs_info = (n_ok, fallidos)
+    if st.session_state.get("respaldo_docs"):
+        n_ok, fallidos = st.session_state.respaldo_docs_info
+        if fallidos:
+            st.warning(f"{len(fallidos)} archivo(s) no se pudieron descargar de Drive; la lista va en "
+                       "«archivos_no_incluidos.txt» dentro del ZIP.")
+        st.download_button(f"Descargar documentos ({n_ok} archivos)", st.session_state.respaldo_docs,
+                           file_name=f"documentos_idiomas_{date.today():%Y%m%d}.zip", mime="application/zip")
     if st.button("Probar conexión con Drive"):
         if not drive.configurado():
             st.warning("Drive no está configurado en los secrets.")

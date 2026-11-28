@@ -39,7 +39,7 @@ def enviar_acceso(rut: str):
         if datos.get("modo") == "recuperacion":
             return "success", f"{datos['correo']} ya tenía cuenta: se le envió un correo para crear una nueva contraseña."
         return "success", (f"Invitación enviada a {datos.get('correo')}. Debe usar el código del correo en "
-                           "«¿Primera vez o olvidaste tu contraseña?» de la pantalla de inicio.")
+                           "«¿Tienes un código de acceso? Crea o cambia tu contraseña» de la pantalla de inicio.")
     except Exception as e:  # FunctionsHttpError trae en .message el «error» que devuelve la función
         return "error", f"No se pudo enviar el acceso. {getattr(e, 'message', '')}".strip()
 
