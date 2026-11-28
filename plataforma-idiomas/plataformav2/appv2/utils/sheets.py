@@ -108,6 +108,10 @@ def tras_escritura(sb, pestanas: list[str]):
     """Se llama después de cada escritura: sincroniza en segundo plano y no bloquea."""
     if not configurado():
         return
+    # Solo la coordinación ve TODAS las filas. Un docente leería solo las de sus cursos
+    # (RLS) y dejaría la hoja incompleta; sus cambios entran en la próxima sincronización.
+    if (st.session_state.get("perfil") or {}).get("rol") != "coordinacion":
+        return
     cred, hoja = dict(st.secrets["gcp_service_account"]), st.secrets["SHEETS_ID"]
     threading.Thread(target=_sincronizar, args=(sb, list(pestanas), cred, hoja), daemon=True).start()
 

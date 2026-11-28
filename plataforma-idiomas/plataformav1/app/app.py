@@ -2,7 +2,7 @@ import streamlit as st
 
 from utils.estilos import FAVICON, LOGO, aplicar_estilos, banner_convocatoria, encabezado, panel_login, portada_inscripcion
 from utils.formulario_inscripcion import _fecha_larga, render_formulario_inscripcion
-from utils.supabase_client import get_client, login, logout
+from utils.supabase_client import activar_con_codigo, docente_sigue_activo, enviar_codigo, get_client, login, logout
 
 st.set_page_config(page_title="Idiomas · DRI UCN", page_icon=str(FAVICON), layout="wide")
 aplicar_estilos()
@@ -59,10 +59,44 @@ def pantalla_inicio():
                     st.rerun()
                 else:
                     st.error(msg)
+            with st.expander("¿Primera vez o olvidaste tu contraseña?"):
+                st.caption("Si la coordinación te envió el acceso, usa el código que llegó a tu correo (no pulses el enlace) para crear "
+                           "tu contraseña. Si no tienes código, pide uno.")
+                with st.form("codigo"):
+                    c_email = st.text_input("Correo", key="c_email")
+                    c_codigo = st.text_input("Código del correo", max_chars=10)
+                    c1, c2 = st.columns(2)
+                    c_pw = c1.text_input("Nueva contraseña (mín. 8)", type="password")
+                    c_pw2 = c2.text_input("Repite la contraseña", type="password")
+                    activar = st.form_submit_button("Crear contraseña e ingresar", type="primary")
+                    pedir = st.form_submit_button("Enviarme un código")
+                if pedir:
+                    if c_email.strip():
+                        st.info(enviar_codigo(c_email.strip().lower())[1])
+                    else:
+                        st.error("Escribe tu correo.")
+                if activar:
+                    if not (c_email.strip() and c_codigo.strip()):
+                        st.error("Completa correo y código.")
+                    elif len(c_pw) < 8 or c_pw != c_pw2:
+                        st.error("La contraseña debe tener al menos 8 caracteres y coincidir en ambos campos.")
+                    else:
+                        ok, msg = activar_con_codigo(c_email.strip().lower(), c_codigo.strip(), c_pw)
+                        if ok:
+                            st.rerun()
+                        else:
+                            st.error(msg)
 
 
 perfil = st.session_state.get("perfil")
 if not perfil:
+    pantalla_inicio()
+    st.stop()
+
+# Desmarcar «Activo» quita el acceso de inmediato (además, RLS ya no le entrega datos)
+if not docente_sigue_activo():
+    logout()
+    st.warning("Tu acceso de docente fue desactivado. Contacta a la coordinación.")
     pantalla_inicio()
     st.stop()
 
@@ -80,7 +114,8 @@ PAGINAS = {
         P("vistas/coord_certificados.py", title="Certificados", icon=":material/workspace_premium:"),
     ],
     "docente": [
-        P("vistas/docente_asistencia.py", title="Asistencia", icon=":material/fact_check:", default=True),
+        P("vistas/docente_cursos.py", title="Mis cursos", icon=":material/school:", default=True),
+        P("vistas/docente_asistencia.py", title="Asistencia", icon=":material/fact_check:"),
         P("vistas/docente_notas.py", title="Notas", icon=":material/edit_note:"),
     ],
     "alumno": [
