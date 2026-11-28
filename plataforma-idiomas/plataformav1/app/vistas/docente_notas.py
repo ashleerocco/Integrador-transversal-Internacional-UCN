@@ -4,7 +4,7 @@ import pandas as pd
 import streamlit as st
 
 from utils import sheets
-from utils.datos import ofertas_opciones, tabla
+from utils.datos import elegir_curso, ofertas_opciones, tabla
 from utils.errores import mensaje_error
 from utils.estilos import encabezado
 from utils.excel import boton_excel
@@ -18,7 +18,7 @@ op = ofertas_opciones(sb)
 if not op:
     st.info("No tienes cursos asignados.")
     st.stop()
-oferta_id = op[st.selectbox("Curso", list(op))]
+oferta_id = elegir_curso(op)
 
 alumnos = sb.rpc("alumnos_de_oferta", {"p_oferta_id": oferta_id}).execute().data
 if not alumnos:

@@ -76,12 +76,29 @@ def tabla(sb, nombre: str, columnas: str = "*", orden: str | None = None, desc: 
 
 
 def ofertas_opciones(sb, solo_activas: bool = False) -> dict[str, int]:
-    """{'Inglés Básico A1 · Antofagasta (1-2026)': oferta_id} según lo que el RLS deja ver."""
-    q = sb.table("v_oferta").select("oferta_id, etiqueta, estado, estado_convocatoria").order("oferta_id", desc=True)
-    data = q.execute().data
+    """{'Inglés Básico A1 · Antofagasta (1-2026)': oferta_id} según lo que el RLS deja ver.
+
+    El docente no tiene acceso a convocatorias (ni, por tanto, a v_oferta): sus cursos
+    llegan por la función mis_cursos_docente(), que solo devuelve los suyos.
+    """
+    if (st.session_state.get("perfil") or {}).get("rol") == "docente":
+        data = sb.rpc("mis_cursos_docente").execute().data or []
+    else:
+        q = sb.table("v_oferta").select("oferta_id, etiqueta, estado, estado_convocatoria").order("oferta_id", desc=True)
+        data = q.execute().data
     if solo_activas:
         data = [o for o in data if o["estado"] in ("abierta", "confirmada")]
     return {o["etiqueta"]: o["oferta_id"] for o in data}
+
+
+def elegir_curso(op: dict[str, int]) -> int:
+    """Selector de curso; abre el que el docente eligió en «Mis cursos» (si hay)."""
+    ids = list(op.values())
+    previo = st.session_state.get("curso_docente")
+    idx = ids.index(previo) if previo in ids else 0
+    oferta_id = op[st.selectbox("Curso", list(op), index=idx)]
+    st.session_state.curso_docente = oferta_id
+    return oferta_id
 
 
 def invalidar_cache():

@@ -27,6 +27,23 @@ ESTADOS_OFERTA = {"abierta": "Abierta", "confirmada": "Confirmada", "no_se_dicta
 PRECIOS_REF = {"ucn": 190000, "egresado_funcionario": 210000, "externo": 220000}
 
 
+def enviar_acceso(rut: str):
+    """Invita al docente (o le reenvía el acceso) con la Edge Function «invitar-docente».
+
+    La invitación la envía Supabase con la service role key DENTRO de la función;
+    la app solo manda la sesión de la coordinación, que la función verifica.
+    Devuelve (tipo_de_mensaje, texto) para mostrarlo con st.success / st.error.
+    """
+    try:
+        datos = sb.functions.invoke("invitar-docente", invoke_options={"body": {"rut": rut}, "responseType": "json"})
+        if datos.get("modo") == "recuperacion":
+            return "success", f"{datos['correo']} ya tenía cuenta: se le envió un correo para crear una nueva contraseña."
+        return "success", (f"Invitación enviada a {datos.get('correo')}. Debe usar el código del correo en "
+                           "«¿Primera vez o olvidaste tu contraseña?» de la pantalla de inicio.")
+    except Exception as e:  # FunctionsHttpError trae en .message el «error» que devuelve la función
+        return "error", f"No se pudo enviar el acceso. {getattr(e, 'message', '')}".strip()
+
+
 def refrescar(pestanas=("convocatorias_ofertas",)):
     sheets.tras_escritura(sb, list(pestanas))
     st.rerun()
@@ -206,12 +223,40 @@ with tab_ofertas:
                     st.error(mensaje_error(e, "guardar la oferta"))
 
 # =========================================================================== Docentes
+def mostrar(msg):
+    if msg:
+        getattr(st, msg[0])(msg[1])
+
+
+def cambiar_activo(rut: str, nombre: str, activo: bool):
+    """Activar/desactivar: desactivado pierde el acceso al instante (RLS revisa docente.activo)."""
+    try:
+        sb.table("docente").update({"activo": activo}).eq("rut", rut).execute()
+        texto = f"{nombre} quedó {'activo' if activo else 'inactivo'}."
+        if not activo:
+            texto += " Ya no puede ingresar a la plataforma; sus datos y registros se conservan."
+        st.session_state.msg_docentes = ("success", texto)
+        refrescar(["docentes"])
+    except Exception as e:
+        st.error(mensaje_error(e, "cambiar el estado del docente"))
+
+
 with tab_doc:
+    mostrar(st.session_state.pop("msg_docentes", None))
     docentes = tabla(sb, "docente", orden="apellidos")
-    if not docentes.empty:
-        cols = ["rut", "nombres", "apellidos", "correo", "telefono", "activo"]
-        st.dataframe(renombrar(docentes[cols]), hide_index=True, width="stretch")
-        boton_excel(docentes[cols], "docentes", "xl_docentes")
+    cols = ["rut", "nombres", "apellidos", "correo", "telefono"]
+    activos = docentes[docentes.activo] if not docentes.empty else docentes
+    inactivos = docentes[~docentes.activo] if not docentes.empty else docentes
+    ofertas_doc = tabla(sb, "oferta", "rut_docente") if not docentes.empty else pd.DataFrame()
+    cursos_por_docente = ofertas_doc.rut_docente.value_counts() if not ofertas_doc.empty else pd.Series(dtype=int)
+
+    st.markdown(f"**Docentes activos** ({len(activos)})")
+    if activos.empty:
+        st.caption("No hay docentes activos.")
+    else:
+        st.dataframe(renombrar(activos[cols]), hide_index=True, width="stretch")
+        boton_excel(activos[cols], "docentes_activos", "xl_docentes")
+
     with st.form("form_docente", clear_on_submit=True):
         st.markdown("**Agregar o actualizar docente** (el RUT es su identificador)")
         c1, c2 = st.columns([1, 2])
@@ -223,7 +268,10 @@ with tab_doc:
         c1, c2 = st.columns(2)
         correo = c1.text_input("Correo (el mismo de su usuario de la plataforma)")
         tel = c2.text_input("Teléfono")
-        activo = st.checkbox("Activo", True)
+        c1, c2 = st.columns(2)
+        activo = c1.checkbox("Activo", True, help="Desmarcar quita el acceso del docente a la plataforma.")
+        invitar = c2.checkbox("Enviar acceso por correo al guardar", True,
+                              help="El docente recibe un correo para crear su contraseña.")
         ok = st.form_submit_button("Guardar docente", type="primary")
     if ok:
         rut = normalizar_documento(doc, tipo)
@@ -234,7 +282,49 @@ with tab_doc:
                 sb.table("docente").upsert({"rut": rut, "tipo_documento": tipo, "nombres": nom.strip(),
                                             "apellidos": ape.strip(), "correo": correo.strip().lower() or None,
                                             "telefono": tel.strip() or None, "activo": activo}).execute()
-                st.toast("Docente guardado")
+                msg = ("success", "Docente guardado.")
+                if invitar and activo and correo.strip():
+                    msg = enviar_acceso(rut)  # antes de recargar la página (si no, nunca se enviaba)
+                st.session_state.msg_docentes = msg
                 refrescar(["docentes"])
             except Exception as e:
                 st.error(mensaje_error(e, "guardar el docente"))
+
+    # Acceso de los docentes activos: enviar (o reenviar) el acceso, o desactivar la cuenta
+    if not activos.empty:
+        st.markdown("**Acceso a la plataforma**")
+        op_act = {f"{r.nombres} {r.apellidos} · {r.correo if pd.notna(r.correo) and r.correo else '(sin correo)'}": r.rut for r in activos.itertuples()}
+        c1, c2, c3 = st.columns([3, 1, 1], vertical_alignment="bottom")
+        sel_act = c1.selectbox("Docente", list(op_act), key="acceso_docente")
+        rut_act = op_act[sel_act]
+        nombre_act = sel_act.split(" · ")[0]
+        sin_correo = sel_act.endswith("(sin correo)")
+        if c2.button("Enviar acceso", icon=":material/mail:", width="stretch", disabled=sin_correo,
+                     help="Registra su correo para poder enviarle el acceso." if sin_correo else None):
+            mostrar(enviar_acceso(rut_act))
+        with c3.popover("Desactivar", icon=":material/person_off:", width="stretch"):
+            st.markdown(f"¿Desactivar a **{nombre_act}**?")
+            n_cursos = int(cursos_por_docente.get(rut_act, 0))
+            aviso = ("Pierde de inmediato el acceso a la plataforma. Sus datos, asistencias y notas se conservan "
+                     "y pasa a «Docentes inactivos».")
+            if n_cursos:
+                aviso += f" Tiene {n_cursos} curso(s) asignado(s): reasígnalos en «Ofertas de cursos»."
+            st.caption(aviso)
+            if st.button("Sí, desactivar", type="primary", key="confirmar_desactivar", width="stretch"):
+                cambiar_activo(rut_act, nombre_act, False)
+
+    # Docentes inactivos: sin acceso; se pueden volver a activar
+    st.divider()
+    st.markdown(f"**Docentes inactivos** ({len(inactivos)})")
+    if inactivos.empty:
+        st.caption("No hay docentes inactivos.")
+    else:
+        st.caption("No pueden ingresar a la plataforma. Sus datos y lo que registraron se conservan.")
+        st.dataframe(renombrar(inactivos[cols]), hide_index=True, width="stretch")
+        boton_excel(inactivos[cols], "docentes_inactivos", "xl_docentes_inactivos")
+        op_ina = {f"{r.nombres} {r.apellidos} · {r.correo if pd.notna(r.correo) and r.correo else '(sin correo)'}": r.rut for r in inactivos.itertuples()}
+        c1, c2 = st.columns([3, 1], vertical_alignment="bottom")
+        sel_ina = c1.selectbox("Docente inactivo", list(op_ina), key="reactivar_docente")
+        if c2.button("Reactivar", icon=":material/person_check:", width="stretch",
+                     help="Vuelve a tener acceso con su misma cuenta y contraseña."):
+            cambiar_activo(op_ina[sel_ina], sel_ina.split(" · ")[0], True)
