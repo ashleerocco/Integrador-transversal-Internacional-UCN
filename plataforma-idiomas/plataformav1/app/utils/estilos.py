@@ -114,11 +114,15 @@ h2, h3 {{ color: {MORADO}; font-weight: 700; }}
 .stButton > button:hover, .stDownloadButton > button:hover {{
     background: #F3EEF8; border-color: {VIOLETA}; color: {VIOLETA}; }}
 .stButton > button[kind="primary"], .stFormSubmitButton > button[kind="primary"],
-[data-testid="stBaseButton-primary"], [data-testid="stBaseButton-primaryFormSubmit"] {{
+.stButton > [data-testid="stBaseButton-primary"],
+.stFormSubmitButton > [data-testid="stBaseButton-primaryFormSubmit"] {{
     background: {MORADO}; color: #FFFFFF; border: 1.5px solid {MORADO}; }}
 .stButton > button[kind="primary"]:hover, .stFormSubmitButton > button[kind="primary"]:hover,
-[data-testid="stBaseButton-primary"]:hover, [data-testid="stBaseButton-primaryFormSubmit"]:hover {{
+.stButton > [data-testid="stBaseButton-primary"]:hover,
+.stFormSubmitButton > [data-testid="stBaseButton-primaryFormSubmit"]:hover {{
     background: {VIOLETA}; border-color: {VIOLETA}; color: #FFFFFF; }}
+/* El texto del botón principal va en un <p>: blanco también (antes quedaba morado sobre morado) */
+[data-testid="stBaseButton-primary"] p, [data-testid="stBaseButton-primaryFormSubmit"] p {{ color: #FFFFFF; }}
 
 /* ---------- Tarjetas, tablas y formularios ---------- */
 [data-testid="stMetric"] {{ background: #FFFFFF; border: 1px solid #E7E2EC;

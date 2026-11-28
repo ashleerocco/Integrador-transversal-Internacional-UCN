@@ -48,7 +48,7 @@ def pantalla_inicio():
                 render_formulario_inscripcion(sb, modo="publico")
         with tab_login:
             st.markdown("<div style='height:1rem'></div>", unsafe_allow_html=True)
-            encabezado("Iniciar sesión", "Para coordinación, docentes y estudiantes")
+            encabezado("Iniciar sesión", "Para coordinación y docentes")
             with st.form("login"):
                 email = st.text_input("Correo")
                 password = st.text_input("Contraseña", type="password")
@@ -59,7 +59,7 @@ def pantalla_inicio():
                     st.rerun()
                 else:
                     st.error(msg)
-            with st.expander("¿Primera vez o olvidaste tu contraseña?"):
+            with st.expander("¿Tienes un código de acceso? Crea o cambia tu contraseña"):
                 st.caption("Si la coordinación te envió el acceso, usa el código que llegó a tu correo (no pulses el enlace) para crear "
                            "tu contraseña. Si no tienes código, pide uno.")
                 with st.form("codigo"):
