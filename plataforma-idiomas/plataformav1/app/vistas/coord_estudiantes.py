@@ -78,15 +78,19 @@ with t_todos:
                     if d.get("drive_file_id"):
                         c1, c2 = st.columns(2)
                         c1.link_button(f"Abrir {etq} en Drive", d["drive_url"])
-                        clave_dl = f"bytes_{rut}_{d['tipo']}"
+                        clave_dl = f"archivo_{rut}_{d['tipo']}"
                         if drive.configurado() and clave_dl not in st.session_state:
                             if c2.button(f"Preparar descarga de {etq}", key=f"dl_{d['tipo']}"):
-                                st.session_state[clave_dl] = drive.descargar(d["drive_file_id"])
-                                st.rerun()
+                                try:
+                                    st.session_state[clave_dl] = drive.descargar_archivo(
+                                        d["drive_file_id"], d.get("nombre_archivo") or f"{rut}_{d['tipo']}")
+                                    st.rerun()
+                                except Exception as e:
+                                    c2.error(f"{mensaje_error(e, 'descargar el archivo')} (detalle: {type(e).__name__})")
                         elif clave_dl in st.session_state:
-                            c2.download_button("⬇️ Guardar archivo", st.session_state[clave_dl],
-                                               file_name=d.get("nombre_archivo") or f"{rut}_{d['tipo']}",
-                                               key=f"dl2_{d['tipo']}", on_click="ignore")
+                            a = st.session_state[clave_dl]  # nombre con su extensión real (.pdf, .jpg, .png)
+                            c2.download_button(f"⬇️ Guardar {a['nombre']}", a["contenido"], file_name=a["nombre"],
+                                               mime=a["mime"], key=f"dl2_{d['tipo']}", on_click="ignore")
                     else:
                         st.caption(f"{etq}: pendiente de subir.")
                 if docs.empty:

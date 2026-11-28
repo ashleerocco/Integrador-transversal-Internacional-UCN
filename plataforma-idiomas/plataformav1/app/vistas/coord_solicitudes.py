@@ -76,6 +76,9 @@ st.divider()
 codigo = st.selectbox("Ver detalle de la solicitud", df["codigo"].tolist(),
                       format_func=lambda c: f"{c} — {df.loc[df.codigo == c, 'nombre_completo'].iloc[0]}")
 s = df[df.codigo == codigo].iloc[0].to_dict()
+# pandas guarda los vacíos como NaN, que Python considera «verdadero»: sin esto, una solicitud
+# «Otro (a convenir)» parecía tener curso (no salía el selector) y el detalle mostraba «nan».
+s = {k: (None if not isinstance(v, (list, dict)) and pd.isna(v) else v) for k, v in s.items()}
 det = nombres(sb, "vinculo_detalle")
 
 c1, c2 = st.columns(2)
@@ -91,7 +94,7 @@ with c1:
 """)
 with c2:
     st.markdown(f"""
-**Curso:** {s.get('curso') or 'Otro (a convenir): ' + str(s.get('otro_idioma_nivel'))}
+**Curso:** {s.get('curso') or 'Otro (a convenir): ' + (s.get('otro_idioma_nivel') or '—')}
 **Modalidad:** {s['modalidad']}
 **Vínculo:** {s['vinculo_nombre']}{' — ' + det.get(s['vinculo_detalle'], '') if s.get('vinculo_detalle') else ''}
 **Carrera / unidad / profesión:** {s['carrera']}
